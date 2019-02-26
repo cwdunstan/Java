@@ -23,9 +23,13 @@ public class Assignment0 {
 			 MessageDigest digest = MessageDigest.getInstance("SHA-256");
 			 ByteArrayOutputStream baos = new ByteArrayOutputStream();
 			 DataOutputStream dos = new DataOutputStream(baos);
-	
+			 
 			 // write you code here
-	
+			 int arrSize =  messages.size();
+			 for(int i =0; i< arrSize; i++){
+				 dos.writeUTF(messages.get(i));
+			 }
+			 
 			 byte[] bytes = baos.toByteArray();
 			 byte[] hash = digest.digest(bytes);
 			 hashString = Base64.getEncoder().encodeToString(hash);

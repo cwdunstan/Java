@@ -22,7 +22,28 @@ public class Blockchain {
 
     // add a transaction
     public int addTransaction(String txString) {
-        // TODO: implement you code here.
+    	//Check valid format
+    	if(txString.matches("tx|[a-z]{4}[0-9]{4}|%70s|\n")){
+    		Transaction Temp = new Transaction();
+    		Temp.setSender(txString.substring(3,7));
+    		Temp.setContent(txString.substring(7,73));
+    		if(pool.size()<poolLimit){
+    			pool.add(Temp);
+    			return 1;
+    		}else{
+    			pool.add(Temp);
+    			Block newBlock = new Block();
+    			newBlock.setTransactions(pool);
+    			setHead(newBlock);
+    			length++;
+    			pool.clear();
+    			return 2;
+    		}
+    		
+    	}else{
+    		return 0;
+    	}
+        
     }
 
     public String toString() {

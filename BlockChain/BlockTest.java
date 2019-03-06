@@ -6,36 +6,50 @@ import org.junit.Test;
 
 public class BlockTest extends Transaction {
 
-	//@Test
-	//public void testGetTransactions() {
-	//	fail("Not yet implemented");
-	//}
+	/*@Test
+	public void testNewBlock() {
+		Block newBlock = new Block();
+		newBlock.setPreviousBlock(null);
+		newBlock.setPreviousHash(new byte[0]);
+		System.out.println(newBlock);
+	}*/
 
 	@Test
 	public void testCalculateHash() {
-		Block myBlock = new Block();
+		/// ADD A BUNCH OF TRANSACTIONS AND TEST BLOCKS WORK HEY
+		Blockchain newChain = new Blockchain();
+		System.out.println(newChain.getLength());
+		newChain.addTransaction("tx|test0000|1");
+		newChain.addTransaction("tx|test0000|2");
+		newChain.addTransaction("tx|test0000|3");
+		newChain.addTransaction("tx|test0000|4");
+		System.out.println(newChain.getLength());
+		newChain.addTransaction("tx|test0000|5");
+		newChain.addTransaction("tx|test0000|6");
+		newChain.addTransaction("tx|test0000|7");
+		System.out.println(newChain.getLength());
+		newChain.addTransaction("tx|test0000|8");
 		
-		//create transcation array
-		ArrayList transactions = new ArrayList();
-		//add test transactions
-		Transaction mine = new Transaction();
-		mine.setSender("test0001");
-		mine.setContent("good message");
-		transactions.add(mine);
+	
+		System.out.println(newChain.getLength());
+
+		System.out.println(newChain+"\n");
 		
-		Transaction mine2 = new Transaction();
-		mine2.setSender("test0002");
-		mine2.setContent("better message aaaaaaaaaaaaaaaaaaa");
-		transactions.add(mine2);
+
 		
-		//set previous block
-		Block Previous = new Block();
-		byte[] filler = new byte[]{};
-		Previous.setPreviousHash(filler);
-		myBlock.setPreviousBlock(Previous);
-		
-		myBlock.setTransactions(transactions);
-		myBlock.calculateHash();
 	}
+	
+	/*@Test
+	public void testvalid() {
+		/// ADD A BUNCH OF TRANSACTIONS AND TEST BLOCKS WORK HEY
+		Blockchain newChain = new Blockchain();
+		
+		newChain.transTest("tx|test0001|messageeeemessageeeemessageeeemessageeeemessageeeemessageeeemessageeee");
+		//newChain.addTransaction("tx|test0002|message");
+		//newChain.addTransaction("tx|test0003|message");
+		
+		System.out.println();
+		
+	}*/
 
 }

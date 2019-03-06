@@ -1,8 +1,11 @@
 import java.util.ArrayList;
 
 public class Blockchain {
+	//latest block of chain
     private Block head;
+    //uncommited transactions
     private ArrayList<Transaction> pool;
+    //chain length
     private int length;
 
     private final int poolLimit = 3;
@@ -22,28 +25,38 @@ public class Blockchain {
 
     // add a transaction
     public int addTransaction(String txString) {
-    	//Check valid format
-    	if(txString.matches("tx|[a-z]{4}[0-9]{4}|%70s|\n")){
-    		Transaction Temp = new Transaction();
-    		Temp.setSender(txString.substring(3,7));
-    		Temp.setContent(txString.substring(7,73));
-    		if(pool.size()<poolLimit){
-    			pool.add(Temp);
-    			return 1;
-    		}else{
-    			pool.add(Temp);
-    			Block newBlock = new Block();
-    			newBlock.setTransactions(pool);
-    			setHead(newBlock);
-    			length++;
-    			pool.clear();
-    			return 2;
-    		}
-    		
-    	}else{
+        // TODO: implement you code here.
+    	//test transaction validity.
+    	Transaction tempTrans = transTest(txString);
+    	if(tempTrans == null){
     		return 0;
     	}
-        
+    	else{
+    		//pool still has room
+    		if(pool.size() < poolLimit-1){
+    			pool.add(tempTrans);
+    			return 1;
+    		}
+    		else{
+    			pool.add(tempTrans);
+    			Block newBlock = new Block();
+    			ArrayList<Transaction> poolCopy = new ArrayList<Transaction>(pool);
+    			newBlock.setTransactions(poolCopy);
+    			if(this.head==null){
+        			newBlock.setPreviousBlock(null);
+        			newBlock.setPreviousHash(new byte[32]);
+    			}
+    			else{
+        			newBlock.setPreviousBlock(this.head);
+        			newBlock.setPreviousHash(this.head.calculateHash());
+    			}
+    			this.head = newBlock;
+    			length++;
+    			pool.clear();
+    			
+    			return 2;
+    		}
+    	}
     }
 
     public String toString() {
@@ -68,4 +81,37 @@ public class Blockchain {
     }
 
     // implement helper functions here if you need any.
+    //check content is 70 chars
+    public boolean checkContent(String content) {
+    	int charcount =0;
+    	Boolean valid = true;
+    	for(int i=0;i<content.length();i++){
+    		char temp = content.charAt(i);
+    		if(temp !=' '){
+    			charcount++;
+    		}
+    		if(temp =='|'){
+    			valid=false;
+    		}
+    	}
+    	if(charcount<71 && valid == true){
+    		return true;
+    	}else{
+    		return false;
+    	}
+    }
+    
+    //check & convert valid transaction
+    public Transaction transTest(String input){
+    	if(input.length()>11){
+    		
+    		if(input.substring(0, 12).matches("tx\\|[a-z]{4}[0-9]{4}\\|") && checkContent(input.substring(12))){
+    			Transaction validTrans = new Transaction();
+    			validTrans.setSender(input.substring(3,11));
+    			validTrans.setContent(input.substring(12));
+    			return validTrans;
+    		}
+    	}
+    	return null;
+    }  
 }

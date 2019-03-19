@@ -54,20 +54,16 @@ public class DFS {
 					fringe.add(tempN);
 					tempN=tempN.getParent();
 				}
-				fringe.add(tempN);
 				searching = false;
-				tempN.generateChildren(forbid);
 			}
-			
+			tempN.generateChildren(forbid);
+			tempN.setVisited(true);
 			
 		}
 		for(Tree.Node kid : tempN.getChildren()){
 			if(kid!=null && !kid.isVisited()){
-				
 				dfs(kid);
 			}
-			
-			tempN.setVisited(true);
 		}	
 	}
 }

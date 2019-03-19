@@ -1,4 +1,5 @@
 import java.io.*;
+import java.util.*;
 
 
 public class Main {
@@ -33,19 +34,57 @@ public class Main {
 	  if (args.length==0){
 	     System.out.println("Bad Filename.");
 	     System.exit(0);
-	   }	
-	  
-	  int [] values = readFile(args[0]);
-
-	  Tree myTree = new Tree(values[0]);
+	   }
+	  //ALGORITHM CHOICE
+	  String choice = args[0];
+	  //VALUES PROVIDED BY USER	  
+	   File file = new File(args[1]);
+	   Scanner inputFile;
+	   ArrayList<Integer> values = new ArrayList<Integer>();
+	   List<Integer> forbidden = new ArrayList<Integer>();
+	   try {
+		inputFile = new Scanner(file);
+		   while (inputFile.hasNext()){
+			    String next = inputFile.next();
+			    String[] temp = next.split(",");
+			    for(int i=0;i<temp.length;i++) {
+			    	values.add(Integer.valueOf(temp[i]));
+			    }
+			   }
+	   	} 	
+	   catch (FileNotFoundException e) {
+		// TODO Auto-generated catch block
+		e.printStackTrace();
+	}
+	   if(values.size()>2) {
+		   forbidden = values.subList(2, values.size());
+	   }
 	 
-	  for(int i=2;i<5;i++) {
-		  Tree.Node tempNode = new Tree.Node();
-		  tempNode.setDigit(values[i]);
-		  myTree.getStart().addChild(tempNode);
+	  //pass start value to new tree
+	  Tree myTree = new Tree(values.get(0));	  
+	  
+	  switch(choice) {
+	  case "A":
+		 // A(myTree,values[1]);
+		  break;
+	  case "B":
+		  BFS myBFS = new BFS(myTree,forbidden,values.get(1));
+		  break;
+	  case "D":
+		  //DFS(myTree,values[1]);
+		  break;
+	  case "I":
+		  //IDS(myTree,values[1]);
+		  break;
+	  case "G":
+		  //Greedy(myTree,values[1]);
+		  break;
+	  case "H":
+		  //Hill(myTree,values[1]);
+		  break;
 	  }
 	  
-	  myTree.printChildren(myTree.getStart());
+	  
 	  }
 	
 }

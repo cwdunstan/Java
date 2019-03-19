@@ -1,5 +1,6 @@
 import java.util.*;
 
+//***************CURRENTLY MATCHING OUTPUT EXAMPLE, BUT NEED TO ACCOUNT FOR CYCLE SKIPPING********************//
 public class BFS {
 
 	public BFS(Tree myTree, List<Integer> forbidden, int goal) {
@@ -20,19 +21,22 @@ public class BFS {
 		else {
 			//spawn first group of children & add to fringe
 			myTree.getStart().generateChildren(forbidden);
+			expanded.add(fringe.poll());
 			fringe.addAll(myTree.getStart().getChildren());
 			//begin the real stuff
 			while(!fringe.isEmpty() && expanded.size()<1000) {
 				Tree.Node temp = fringe.poll();
-
+						//SOLUTION WAS FOUND
 						if(temp.getDigits()==goal) {
 						expanded.add(temp);
 						LinkedList<Tree.Node> sol = new LinkedList<Tree.Node>();
+						//TRACE BACK TO START
 						while(temp.getParent()!=null) {
 							sol.add(temp);
 							temp=temp.getParent();
 						}
 						sol.add(temp);
+						//PRINT OUT PATH
 						for(int i=sol.size()-1;i>=0;i--) {
 							System.out.print(sol.get(i).getDigits());
 							if(i>0) {
@@ -42,6 +46,7 @@ public class BFS {
 							}
 						}
 						System.out.flush();
+						//PRINT OUT EXPANDED ORDER
 						for(int j=0;j<expanded.size();j++) {
 							System.out.print(expanded.get(j).getDigits());
 							if(j<expanded.size()-1) {
@@ -53,29 +58,12 @@ public class BFS {
 						System.out.flush();
 						return;
 					}else {
-						temp.setVisited(true);
+						//SOLUTION WAS NOT FOUND
 						temp.generateChildren(forbidden);
-						boolean shouldadd = true;
-						for(int i = 0;i<expanded.size();i++) {
-							if(expanded.get(i).getDigits()==temp.getDigits()) {
-								List<Tree.Node> tempkids = expanded.get(i).getChildren();
-								boolean equal = true;
-								for(int j=0;j<tempkids.size();j++) {
-									if(!(tempkids.get(j).getDigits() == temp.getChildren().get(j).getDigits())) {
-									equal=false;
-								}
-							}
-							if(equal) {
-								shouldadd=false;
-							}
-						
-						}
-					}
-						if(shouldadd) {
-					fringe.addAll(temp.getChildren());
-				}
 						expanded.add(temp);
-			}
+						temp.setVisited(true);
+						fringe.addAll(temp.getChildren());
+					}
 			}
 			System.out.println("No Solution Found.");
 			return;

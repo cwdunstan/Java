@@ -71,7 +71,7 @@ public class Main {
 		  BFS myBFS = new BFS(myTree,forbidden,values.get(1));
 		  break;
 	  case "D":
-		  //DFS(myTree,values[1]);
+		  DFS myDFS = new DFS(myTree,forbidden,values.get(1));
 		  break;
 	  case "I":
 		  //IDS(myTree,values[1]);

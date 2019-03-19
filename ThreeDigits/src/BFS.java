@@ -39,11 +39,11 @@ public class BFS {
 						//PRINT OUT PATH
 						for(int i=sol.size()-1;i>=0;i--) {
 							System.out.print(sol.get(i).getDigits());
-							if(i>0) {
+						if(i>0) {
 								System.out.print(",");
 							}else {
 								System.out.print("\n");
-							}
+								}
 						}
 						System.out.flush();
 						//PRINT OUT EXPANDED ORDER

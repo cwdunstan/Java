@@ -4,7 +4,6 @@ public class DFS {
 	
 	public List<Integer> forbid;
 	public int goals;
-	public boolean searching = true;
 	ArrayList<Tree.Node> expanded = new ArrayList<Tree.Node>();
 	LinkedList<Tree.Node> fringe = new LinkedList<Tree.Node>();
 	
@@ -45,26 +44,24 @@ public class DFS {
 		}
 	}
 	
-	public void dfs(Tree.Node tempN){
-		while(searching){
+	public void dfs(Tree.Node tempN) {
 		if(!tempN.isVisited()){
-			expanded.add(tempN);
+			tempN.setVisited(true);
 			if(tempN.getDigits()==goals){
-				while(tempN.getParent()!=null){
-					fringe.add(tempN);
-					tempN=tempN.getParent();
-				}
-				searching = false;
+				System.out.println("goal");
+				return;
 			}
 			tempN.generateChildren(forbid);
+			System.out.println("Visited: "+tempN.getDigits());
 			tempN.setVisited(true);
-			
 		}
 		for(Tree.Node kid : tempN.getChildren()){
 			if(kid!=null && !kid.isVisited()){
+				System.out.println(kid.getDigits());
 				dfs(kid);
-			}
-		}	
+			}	
+		}
+		//expanded.add(tempN);
 	}
 }
-}
+

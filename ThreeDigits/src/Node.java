@@ -4,11 +4,11 @@ import java.util.List;
 public class Node {
     private List<Node> children = new ArrayList<Node>();
     private Node parent = null;
-    private int digit;
+    private String digit;
     private int lastchange;
 
-    public Node(int digit) {
-        this.digit = digit;
+    public Node(String start) {
+        this.digit = start;
     }
 
     public List<Node> getChildren() {
@@ -31,7 +31,7 @@ public class Node {
     	return this.lastchange;
     }
     
-    public void addChild(int digit, int change) {
+    public void addChild(String digit, int change) {
         Node child = new Node(digit);
         child.setParent(this);
         child.lastchange=change;
@@ -39,7 +39,7 @@ public class Node {
     }
 
 
-    public int getDigit() {
+    public String getDigit() {
         return this.digit;
     }
 
@@ -51,10 +51,9 @@ public class Node {
         return (this.children.size() == 0);
     }
     
-    public void generatekids(ArrayList<Integer> forbid) {
+    public void generatekids(String[] forbid) {
     	//convert digit to single chars
-    	String number = String.valueOf(this.digit);
-    	char[] digits = number.toCharArray();
+    	char[] digits = this.digit.toCharArray();
     	//Start iterating
     	for(int i=0;i<digits.length;i++) {
     		//make sure not changing the same digit twice
@@ -66,13 +65,21 @@ public class Node {
     				digits[i]=(char)((temp-1)+'0');
     				int toAdd=Integer.parseInt(String.valueOf(digits));
     				digits[i]=(char)((temp)+'0');
-    				for(int n : forbid) {
-    					if(n==toAdd) {
-    						tempadd=false;
+    				if(forbid!=null) {
+    					for(String n : forbid) {
+    						if(Integer.parseInt(n)==toAdd) {
+    							tempadd=false;
+    						}	
     					}
     				}
     				if(tempadd) {
-    					this.addChild(toAdd,i);
+    					String tempcha = String.valueOf(toAdd);
+    					if(tempcha.length()<3) {
+    						while(tempcha.length()<3) {
+    							tempcha ='0'+tempcha;
+    						}
+    					}
+    					this.addChild(String.valueOf(tempcha),i);
     				}
     			}
     			//then adding 1
@@ -81,13 +88,21 @@ public class Node {
     				digits[i]=(char)((temp+1)+'0');
     				int toAdd=Integer.parseInt(String.valueOf(digits));
     				digits[i]=(char)((temp)+'0');
-    				for(int n : forbid) {
-    					if(n==toAdd) {
-    						tempadd=false;
+    				if(forbid!=null) {
+    					for(String n : forbid) {
+    						if(Integer.parseInt(n)==toAdd) {
+    							tempadd=false;
+    						}	
     					}
     				}
     				if(tempadd) {
-    					this.addChild(toAdd,i);
+    					String tempcha = String.valueOf(toAdd);
+    					if(tempcha.length()<3) {
+    						while(tempcha.length()<3) {
+    							tempcha ='0'+tempcha;
+    						}
+    					}
+    					this.addChild(String.valueOf(tempcha),i);
     				}
     			}
     			

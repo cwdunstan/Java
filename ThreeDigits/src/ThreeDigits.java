@@ -41,12 +41,13 @@ public class ThreeDigits {
 		BFS.BFS(start,inputs.get(1),forbidden);
 		break;
 	
+	case "D":
+		DFS.DFS(start,inputs.get(1),forbidden);
+		break;
 	}
 	
-	
-	
-	
 }	
+	
 	
 //**************************TREE CONSTRUCTOR*******************************//
 	

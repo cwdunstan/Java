@@ -6,9 +6,11 @@ public class Node {
     private Node parent = null;
     private String digit;
     private int lastchange;
+    boolean visited;
 
     public Node(String start) {
         this.digit = start;
+        this.visited=false;
     }
 
     public List<Node> getChildren() {

@@ -6,6 +6,7 @@ public class Node {
     private Node parent = null;
     private String digit;
     private int lastchange;
+    private int depth=0;
     boolean visited;
 
     public Node(String start) {
@@ -38,6 +39,11 @@ public class Node {
         child.setParent(this);
         child.lastchange=change;
         this.children.add(child);
+        child.depth=this.depth+1;
+    }
+    
+    public int getDepth(){
+    	return this.depth;
     }
 
 

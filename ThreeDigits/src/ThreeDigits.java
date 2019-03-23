@@ -44,6 +44,10 @@ public class ThreeDigits {
 	case "D":
 		DFS.DFS(start,inputs.get(1),forbidden);
 		break;
+		
+	case "I":
+		IDS.IDS(start,inputs.get(1),forbidden);
+		break;
 	}
 	
 }	

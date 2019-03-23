@@ -36,6 +36,16 @@ public class BFS {
 				}
 			}
 			System.out.println("No solution found.");
+			//PRINT FULL EXPANDED//
+			for(int i=0;i<expanded.size();i++) {
+				System.out.print(expanded.get(i).getDigit());
+				if(i<expanded.size()-1) {
+					System.out.print(",");
+				}else {
+					System.out.print("\n");
+				}
+			}
+			System.out.flush();
 			return;
 			
 		}

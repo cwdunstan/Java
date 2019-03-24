@@ -26,15 +26,18 @@ public class IDS {
 	
 	public static void runIDS(Node n, String goal, String[] forbid){
 
-		while(!found && explored.size()<10000){
+		while(!found && explored.size()<10000) {
 			runDFS(n,goal,explored);
+			depth++;
+			expanded.clear();
+			newLayer(n,forbid,depth);
+		}
+			
 			for(Node m : explored){
 				System.out.print(m.getDigit()+" ");
 			}
 			System.out.println();
-			depth++;
-			newLayer(n,forbid,depth);
-		}
+		
 	}
 			
 		
@@ -42,27 +45,35 @@ public class IDS {
 	
 	public static  void runDFS(Node n,String goal,LinkedList<Node> explored)
 	{
-		LinkedList<Node> queue = new LinkedList<Node>();
-		n.visited=true;
-		explored.add(n);
+		if(!found){
 		if(Integer.parseInt(n.getDigit())==Integer.parseInt(goal)){
-			System.out.println("goal!");
+			LinkedList<Node> tempres = new LinkedList<Node>();
+			explored.add(n);
 			found=true;
-		
+			while(!n.isStart()) {
+				tempres.add(n);
+				n=n.getParent();
+			}
+			tempres.add(n);
+			for(int i=tempres.size()-1;i>=0;i--) {
+				System.out.print(tempres.get(i).getDigit()+" ");
+			}
+			System.out.println();
 			return;
 		}
-		List<Node> children = n.getChildren();
-		queue.addAll(children);
-		while(!queue.isEmpty()){
-			Node m = queue.pop();
-			if(!m.visited && m.getDepth()<=depth){
-				runDFS(m,goal,explored);
-			}
+		
+			explored.add(n);
+			List<Node> children = n.getChildren();
+			n.visited=true;
+			for (int i = 0; i < children.size(); i++) {
+				Node t =children.get(i);
+				if(t!=null && !t.visited && explored.size()<1000)
+				{
+					runDFS(t, goal,explored);
+				}
+			
 		}
-		if(depth==3){
-			found=true;
-			}
-		return;
+		}
 	}
 	
 	public static void newLayer(Node n, String[] forbid, int depth){

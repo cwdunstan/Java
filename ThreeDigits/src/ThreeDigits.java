@@ -48,6 +48,10 @@ public class ThreeDigits {
 	case "I":
 		IDS.IDS(start,inputs.get(1),forbidden);
 		break;
+	
+	case "G":
+		Greedy.Greedy(start,inputs.get(1),forbidden);
+		break;
 	}
 	
 }	

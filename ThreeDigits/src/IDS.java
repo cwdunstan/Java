@@ -20,17 +20,21 @@ public class IDS {
 			depth++;
 			runIDS(n, goal,forbid);
 
-
 		}
 	}
 	
 	public static void runIDS(Node n, String goal, String[] forbid){
 
-		while(!found && explored.size()<10000) {
+		while(!found && explored.size()<1000) {
 			runDFS(n,goal,explored);
 			depth++;
-			expanded.clear();
 			newLayer(n,forbid,depth);
+			expanded.clear();
+		}
+		if(!found){
+			System.out.print("No solution found.");
+			System.out.println();
+			
 		}
 			
 			for(Node m : explored){
@@ -40,7 +44,7 @@ public class IDS {
 				}
 			}
 			System.out.println();
-		
+			return;
 	}
 			
 		
@@ -69,16 +73,19 @@ public class IDS {
 		}
 		
 			explored.add(n);
-			List<Node> children = n.getChildren();
-			n.visited=true;
-			for (int i = 0; i < children.size(); i++) {
+			
+			if(!n.visited){
+				List<Node> children = n.getChildren();
+				for (int i = 0; i < children.size(); i++) {
 				Node t =children.get(i);
-				if(t!=null && !t.visited && explored.size()<1000)
+				if(t!=null && explored.size()<1000)
 				{
 					runDFS(t, goal,explored);
 				}
-			
-		}
+
+				}
+			}
+			n.visited=true;
 		}
 	}
 	
@@ -92,6 +99,7 @@ public class IDS {
 				if(shouldadd(temp,expanded)){
 				expanded.add(temp);
 				if(temp.getDepth()<depth){
+					temp.getChildren().clear();
 					temp.generatekids(forbid);
 					queue.addAll(temp.getChildren());
 				}
@@ -102,24 +110,27 @@ public class IDS {
 	public static boolean shouldadd(Node n, LinkedList<Node> expanded) {
 		for(Node temp : expanded) {
 			if(temp.getDigit().equals((n.getDigit()))) {
-				if(temp.getChildren().size()==n.getChildren().size()) {
+				if(temp.getChildren().size()>=n.getChildren().size()) {
 					ArrayList<String> temp1 = new ArrayList<String>();
 					ArrayList<String> temp2 = new ArrayList<String>();
+					for(int i=0;i<n.getChildren().size();i++) {
+						temp1.add(n.getChildren().get(i).getDigit());
+					}
 					for(int i=0;i<temp.getChildren().size();i++) {
-							temp1.add(n.getChildren().get(i).getDigit());
 							temp2.add(temp.getChildren().get(i).getDigit());
 						}
-					if(temp1.equals(temp2)) {
+					if(temp2.containsAll(temp1)) {
 						return false;
 					}
-					}
-			
+				}
+					
 				}
 			}
 		return true;
 		
 	}
 }
+	
 	
 	
 

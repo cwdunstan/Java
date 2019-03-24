@@ -59,6 +59,19 @@ public class Node {
         return (this.children.size() == 0);
     }
     
+    public int manhat(Node b){
+    	char[] tempA = this.getDigit().toCharArray();
+    	char[] tempB = b.getDigit().toCharArray();
+    	int tempres =0;
+    	for(int i=0;i<3;i++){
+    		int tempAI = Integer.parseInt(String.valueOf(tempA[i]));
+    		int tempBI = Integer.parseInt(String.valueOf(tempB[i]));
+    		tempres += Math.abs(tempAI-tempBI);
+    	}
+    	return tempres;
+    	
+    }
+    
     public void generatekids(String[] forbid) {
     	//convert digit to single chars
     	char[] digits = this.digit.toCharArray();

@@ -56,7 +56,12 @@ public class IDS {
 			}
 			tempres.add(n);
 			for(int i=tempres.size()-1;i>=0;i--) {
-				System.out.print(tempres.get(i).getDigit()+" ");
+				System.out.print(tempres.get(i).getDigit());
+				if(i>0) {
+					System.out.print(",");
+				}else {
+					System.out.print("\n");
+				}
 			}
 			System.out.println();
 			return;

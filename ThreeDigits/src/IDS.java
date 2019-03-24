@@ -34,7 +34,10 @@ public class IDS {
 		}
 			
 			for(Node m : explored){
-				System.out.print(m.getDigit()+" ");
+				System.out.print(m.getDigit());
+				if(explored.getLast()!=m) {
+				System.out.print(",");
+				}
 			}
 			System.out.println();
 		
@@ -59,8 +62,6 @@ public class IDS {
 				System.out.print(tempres.get(i).getDigit());
 				if(i>0) {
 					System.out.print(",");
-				}else {
-					System.out.print("\n");
 				}
 			}
 			System.out.println();

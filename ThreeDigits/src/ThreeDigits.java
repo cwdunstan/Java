@@ -46,7 +46,7 @@ public class ThreeDigits {
 		break;
 		
 	case "I":
-		IDS.IDS(start,inputs.get(1),forbidden);
+		IDS2.IDS2(start,inputs.get(1),forbidden);
 		break;
 	
 	case "G":

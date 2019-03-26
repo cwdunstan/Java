@@ -8,7 +8,9 @@ public class BFS {
 		LinkedList<Node> expanded = new LinkedList<Node>();
 		
 		//is first node a goal?
-		if(Integer.parseInt(n.getDigit())==Integer.parseInt(goal)) {
+		if(n.getDigit().equals(goal)) {
+			System.out.println(n.getDigit());
+			System.out.println(n.getDigit());
 			return;
 		}
 		//it wasnt a goal

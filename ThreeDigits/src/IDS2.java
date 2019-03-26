@@ -1,27 +1,35 @@
-import java.util.*;
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Stack;
 
-public class DFS {
-	
+public class IDS2 {
+
 	public static boolean found = false;
-
-	public static void DFS(Node n, String goal,String[] forbid) {
+	public static void IDS2(Node n, String goal,String[] forbid) {
 		
 		LinkedList<Node> expanded = new LinkedList<Node>();
 
 		
+		//check goal
 		if(n.getDigit().equals(goal)) {
 			System.out.println(n.getDigit());
 			System.out.println(n.getDigit());
+			found=true;
 			return;
 		}
-		//it wasnt a goal
-		else{
-			//add to expanded, generate kids and add them to fringe	
-
-			dfs(n,goal, forbid, expanded);
+		int depth=0;
+		while(!found && expanded.size()<1000) {
+			LinkedList<Node> expandedtemp = new LinkedList<Node>();
+			dfs(n,goal,forbid,expandedtemp,depth);
+			for(int i=0;i<expandedtemp.size();i++) {
+				if(expanded.size()<1000) {
+				expanded.add(expandedtemp.get(i));
+				}
+			}
+			depth++;
 		}
-		if(found){
-			//print path
+		if(found) {
 			Stack<Node> tempStack = new Stack<Node>();
 			Node temp = expanded.getLast();
 			while(!temp.isStart()){
@@ -31,31 +39,28 @@ public class DFS {
 			tempStack.push(temp);
 			while(!tempStack.isEmpty()){
 				Node temp2 = tempStack.pop();
-				System.out.print(temp2.getDigit()+" ");
+				System.out.print(temp2.getDigit()+",");
 			}
 			System.out.print("\n");
 			System.out.flush();
+		}else {
+			System.out.println("No solution found.");
 		}
-			else{
-				System.out.println("No solution found.");
+		for(int i=0;i<expanded.size();i++) {
+			System.out.print(expanded.get(i).getDigit());
+			if(i<expanded.size()-1) {
+				System.out.print(",");
 			}
-
-			
-			//print expanded
-			for(Node b : expanded){
-				System.out.print(b.getDigit()+" ");
-			}
-			System.out.print("\n");
-			System.out.flush();
-		
+		}
+		System.out.println();
 		
 	}
 	
-	public static  void dfs(Node n,String goal, String[] forbid,LinkedList<Node> expanded)
+	public static  void dfs(Node n,String goal, String[] forbid,LinkedList<Node> expanded, int depth)
 	{
 		if(!found){
 		n.generatekids(forbid);
-		if(Integer.parseInt(n.getDigit())==Integer.parseInt(goal)){
+		if(n.getDigit().equals(goal)){
 			expanded.add(n);
 			found=true;
 			return;
@@ -66,12 +71,13 @@ public class DFS {
 			n.visited=true;
 			for (int i = 0; i < children.size(); i++) {
 				Node t =children.get(i);
-				if(t!=null && !t.visited && expanded.size()<1000)
+				if(t!=null && !t.visited && expanded.size()<1000 & t.getDepth()<=depth)
 				{
-					dfs(t, goal,forbid,expanded);
+					dfs(t, goal,forbid,expanded, depth);
 				}
 			}
 		}
+		n.visited=true;
 		}
 	}
 	
@@ -95,5 +101,5 @@ public class DFS {
 		return true;
 		
 	}
-	
+
 }

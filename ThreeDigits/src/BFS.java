@@ -8,7 +8,9 @@ public class BFS {
 		LinkedList<Node> expanded = new LinkedList<Node>();
 		
 		//is first node a goal?
-		if(Integer.parseInt(n.getDigit())==Integer.parseInt(goal)) {
+		if(n.getDigit().equals(goal)) {
+			System.out.println(n.getDigit());
+			System.out.println(n.getDigit());
 			return;
 		}
 		//it wasnt a goal
@@ -36,6 +38,16 @@ public class BFS {
 				}
 			}
 			System.out.println("No solution found.");
+			//PRINT FULL EXPANDED//
+			for(int i=0;i<expanded.size();i++) {
+				System.out.print(expanded.get(i).getDigit());
+				if(i<expanded.size()-1) {
+					System.out.print(",");
+				}else {
+					System.out.print("\n");
+				}
+			}
+			System.out.flush();
 			return;
 			
 		}

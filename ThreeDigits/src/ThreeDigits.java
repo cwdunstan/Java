@@ -41,12 +41,29 @@ public class ThreeDigits {
 		BFS.BFS(start,inputs.get(1),forbidden);
 		break;
 	
+	case "D":
+		DFS.DFS(start,inputs.get(1),forbidden);
+		break;
+		
+	case "I":
+		IDS2.IDS2(start,inputs.get(1),forbidden);
+		break;
+	
+	case "G":
+		Greedy.Greedy(start,inputs.get(1),forbidden);
+		break;
+		
+	case "A":
+		A.A(start,inputs.get(1),forbidden);
+		break;
+		
+	case "H":
+		Hill.Hill(start,inputs.get(1),forbidden);
+		break;
 	}
 	
-	
-	
-	
 }	
+	
 	
 //**************************TREE CONSTRUCTOR*******************************//
 	

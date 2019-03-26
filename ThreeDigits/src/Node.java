@@ -6,9 +6,13 @@ public class Node {
     private Node parent = null;
     private String digit;
     private int lastchange;
+    private int depth=0;
+    private int man=0;
+    boolean visited;
 
     public Node(String start) {
         this.digit = start;
+        this.visited=false;
     }
 
     public List<Node> getChildren() {
@@ -26,6 +30,14 @@ public class Node {
     public Node getParent() {
         return this.parent;
     }
+    
+    public void setMan(int man) {
+        this.man = man;
+    }
+    
+    public int getMan() {
+        return this.man;
+    }
 
     public int getChange() {
     	return this.lastchange;
@@ -36,8 +48,12 @@ public class Node {
         child.setParent(this);
         child.lastchange=change;
         this.children.add(child);
+        child.depth=this.depth+1;
     }
-
+    
+    public int getDepth(){
+    	return this.depth;
+    }
 
     public String getDigit() {
         return this.digit;
@@ -49,6 +65,19 @@ public class Node {
 
     public boolean hasChildren() {
         return (this.children.size() == 0);
+    }
+    
+    public void manhat(String b){
+    	char[] tempA = this.getDigit().toCharArray();
+    	char[] tempB = b.toCharArray();
+    	int tempres =0;
+    	for(int i=0;i<3;i++){
+    		int tempAI = Integer.parseInt(String.valueOf(tempA[i]));
+    		int tempBI = Integer.parseInt(String.valueOf(tempB[i]));
+    		tempres += Math.abs(tempAI-tempBI);
+    	}
+    	this.man=tempres;
+    	
     }
     
     public void generatekids(String[] forbid) {

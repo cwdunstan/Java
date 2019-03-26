@@ -7,6 +7,7 @@ public class Node {
     private String digit;
     private int lastchange;
     private int depth=0;
+    private int man=0;
     boolean visited;
 
     public Node(String start) {
@@ -28,6 +29,14 @@ public class Node {
     
     public Node getParent() {
         return this.parent;
+    }
+    
+    public void setMan(int man) {
+        this.man = man;
+    }
+    
+    public int getMan() {
+        return this.man;
     }
 
     public int getChange() {
@@ -59,16 +68,16 @@ public class Node {
         return (this.children.size() == 0);
     }
     
-    public int manhat(Node b){
+    public void manhat(String b){
     	char[] tempA = this.getDigit().toCharArray();
-    	char[] tempB = b.getDigit().toCharArray();
+    	char[] tempB = b.toCharArray();
     	int tempres =0;
     	for(int i=0;i<3;i++){
     		int tempAI = Integer.parseInt(String.valueOf(tempA[i]));
     		int tempBI = Integer.parseInt(String.valueOf(tempB[i]));
     		tempres += Math.abs(tempAI-tempBI);
     	}
-    	return tempres;
+    	this.man=tempres;
     	
     }
     

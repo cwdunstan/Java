@@ -1,8 +1,9 @@
-import java.util.*;
+import java.util.ArrayList;
+import java.util.LinkedList;
 
-public class Greedy {
+public class A{
 
-	public static void Greedy(Node n, String goal,String[] forbid) {
+	public static void A(Node n, String goal,String[] forbid) {
 		
 		LinkedList<Node> fringe = new LinkedList<Node>();
 		LinkedList<Node> expanded = new LinkedList<Node>();
@@ -19,6 +20,7 @@ public class Greedy {
 		expanded.add(n);
 		for(Node m : n.getChildren()){
 			m.manhat(goal);
+			m.setMan(m.getMan()+m.getDepth());
 			fringe.add(m);
 		}
 		
@@ -62,6 +64,7 @@ public class Greedy {
 				fringe.remove(temp);
 			for(Node m : temp.getChildren()){
 				m.manhat(goal);
+				m.setMan(m.getMan()+m.getDepth());
 				fringe.add(m);
 			}
 			}

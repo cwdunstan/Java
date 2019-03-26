@@ -52,6 +52,14 @@ public class ThreeDigits {
 	case "G":
 		Greedy.Greedy(start,inputs.get(1),forbidden);
 		break;
+		
+	case "A":
+		A.A(start,inputs.get(1),forbidden);
+		break;
+		
+	case "H":
+		Hill.Hill(start,inputs.get(1),forbidden);
+		break;
 	}
 	
 }	

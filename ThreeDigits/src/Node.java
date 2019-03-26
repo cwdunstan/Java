@@ -55,7 +55,6 @@ public class Node {
     	return this.depth;
     }
 
-
     public String getDigit() {
         return this.digit;
     }

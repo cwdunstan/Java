@@ -99,7 +99,6 @@ public class IDS {
 				if(shouldadd(temp,expanded)){
 				expanded.add(temp);
 				if(temp.getDepth()<depth){
-					temp.getChildren().clear();
 					temp.generatekids(forbid);
 					queue.addAll(temp.getChildren());
 				}

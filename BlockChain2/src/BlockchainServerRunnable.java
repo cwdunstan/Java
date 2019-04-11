@@ -20,7 +20,7 @@ public class BlockchainServerRunnable implements Runnable{
     	try{
     	 BufferedReader inputReader = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
          PrintWriter outWriter = new PrintWriter(clientSocket.getOutputStream(), true);
-         System.out.println("new thread");
+         System.out.println("Server thread Started");
 		    while(true) {
 		    	
 		   String input = null;
@@ -51,7 +51,7 @@ public class BlockchainServerRunnable implements Runnable{
 						else if(input.matches("cc")) {
 							outWriter.flush();
 							outWriter.close();
-				
+			
 							break;
 						}
 						else {

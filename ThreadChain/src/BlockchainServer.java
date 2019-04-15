@@ -1,46 +1,55 @@
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
-
+ 
 public class BlockchainServer {
-
+ 
     public static void main(String[] args) {
-
+ 
         if (args.length != 1) {
             return;
         }
-
+ 
         int portNumber = Integer.parseInt(args[0]);
         Blockchain blockchain = new Blockchain();
         
-        
-        PeriodicCommitRunnable pcr = new PeriodicCommitRunnable(blockchain);
-        Thread pct = new Thread(pcr);
+     
+        //INITIALIZEW SERVER SOCKET
         ServerSocket myServerSocket = null;
         try{
-        	pct.start();
         	myServerSocket = new ServerSocket(portNumber);
-        	Socket mySocket = null;
-        	BlockchainServerRunnable bcs = null;
-        	while(pcr.getRunning()){
-        		mySocket = myServerSocket.accept();
-        		BlockchainServerRunnable bsr = new BlockchainServerRunnable(mySocket,blockchain);
-        		 Thread bsrt = new Thread(bsr);
-        		 bsrt.start();
+        }    
+       catch(IOException e){
+        	System.out.println("couldn't create socket.");
+        	System.exit(-1);
+        }
+        
+        //SET UP OTHER STUFF
+        PeriodicCommitRunnable pcr = new PeriodicCommitRunnable(blockchain);
+        Thread pct = new Thread(pcr);
+        pct.start();
+        
+        while(pcr.getRunning()){
+        	try{
+        		Socket mySocket = myServerSocket.accept();
+        		BlockchainServerRunnable bcr = new BlockchainServerRunnable(mySocket, blockchain);
+        		Thread myBcr = new Thread(bcr);
+        		myBcr.start();
+        	} 
+        	catch(IOException e){
+        		System.out.println("error1");
         	}
-        	pcr.setRunning(false);
-        	pct.join();
-        }
-        catch(IOException e){
         	
-        }
-        catch(InterruptedException e){
-        	
-        }
-     
-
-
+        	try{
+        		myServerSocket.close();
+        		pcr.setRunning(false);
+        		System.out.println("server stopped.");
+        		return;
+        	} catch(Exception er){
+        		System.out.println("error closing server");
+        		System.exit(-1);
+        	}
+        }      
     }
-
-    // implement any helper method here if you need any
 }
+    // implement any helper method here if you need any

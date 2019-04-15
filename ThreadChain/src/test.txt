@@ -1,15 +1,19 @@
-=
+servers.num=2
+servers.num
+servers.num=2
 servers.num=
+servers.num=3
 
-server0.host=localhost
+server0.host= 
 
 server1.host=localhost
-server1.port=123456
+server1.port=1234a
+server0.host= 
 
 
 server2.host=localhost
+server2.port=8334
 
+servers.num=3
+server2.host=localhost
 server2.port=8333
-
-server3.host=localhost
-server3.port=8334

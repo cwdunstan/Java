@@ -4,6 +4,7 @@ import java.io.*;
 public class ServerInfoList {
 
     ArrayList<ServerInfo> serverInfos;
+    int size;
 
     public ServerInfoList() {
         serverInfos = new ArrayList<>();
@@ -14,15 +15,18 @@ public class ServerInfoList {
     	if(filename==null){
     		return;
     	}
-    	try {
+    	
             //fr reads text file
-            FileReader fr =  new FileReader(filename);
-            BufferedReader br = new BufferedReader(fr);
+            FileReader fr;
+			try {
+				fr = new FileReader(filename);
+				BufferedReader br = new BufferedReader(fr);
             
             //populate arraylist store with all txt values
             String line = null;
             ArrayList<String> store = new ArrayList<>();
             while((line = br.readLine()) != null) {
+            	line = line.replaceAll("\\s","");
             	if(!line.equals("")){
             		store.add(line);
             	}
@@ -31,69 +35,125 @@ public class ServerInfoList {
             //close file.
             br.close();  
             
-            int serversnum=0;
-            int curserv =0;
-            String temphost="";
-            boolean newserv = false;
-            //iterate through store
-            for(int i=0;i<store.size();i++){
-            	String[] tokens = store.get(i).split("\\=");
-            	//get number of servers
-            	if(tokens.length>0){
-            		
-            	if(tokens[0].matches("servers.num") && tokens.length>1){
-            		serversnum=Integer.parseInt(tokens[1]);
+            int servNums =0;
+            //find last server.num
+            for( String s : store){
+            	String[] tokens = s.split("\\=");
+            	if(tokens.length==2){
+            		if(tokens[0].matches("servers.num") && tokens.length>1){
+                		servNums=Integer.parseInt(tokens[1]);
+                	}
             	}
-          
-            	//if host is specified
-            	if(tokens[0].matches("server[\\d]\\.host")){
-            		if(tokens.length>1){
-            		//make sure note the last line of file
-	            		if(newserv){
-	            			this.serverInfos.add(null);
-	            			newserv=false;
-	            		}
-	            		curserv=Character.getNumericValue(tokens[0].charAt(6));
-	            		if(curserv<serversnum){
-	            			newserv=true;
-	            			temphost=tokens[1];
-	            		}else{
-	            			newserv=false;
-	            		}
-            		}
-            	}
-            	
-            	if(tokens[0].matches("server[\\d]\\.port")){
-            		if(tokens.length>1){
-            		//make sure note the last line of file
-	            		int tempserv =Character.getNumericValue(tokens[0].charAt(6));
-	            		if(tempserv == curserv && newserv){
-	            			int tempPort = Integer.parseInt(tokens[1]);
-	    					if(tempPort >1023 && tempPort <65536){
-	    						ServerInfo temp = new ServerInfo(temphost,tempPort);
-	    						this.serverInfos.add(temp);
-	    					}else{
-	    						this.serverInfos.add(null);
-	    					}
-	    					temphost="";
-	    					newserv=false;
-	            		}
-            		}
-            	}
-            	
-            	}	
-            	
             }
-        }
-        catch(FileNotFoundException e) {
-        	e.printStackTrace();           
-        }
-        catch(IOException e) {
-             e.printStackTrace();
-        }
-    	 catch(IndexOutOfBoundsException e) {
-             e.printStackTrace();
-        }
+            //check that servnum was found, set size
+            if(servNums==0){
+            	this.serverInfos.clear();
+            	return;
+            }
+            this.size=servNums;
+      
+            
+            //TIME TO ITERATE AND ADD THE SERVERS
+            //server2.host=localhost -> SECOND VALUE CANNOT BE EMPTY *****DONE******
+            //server2.port=8334 -> 1023> and <65536
+            //if not in pairs, or doesn't match, add null 
+            //IF SERVER INDEX >= SIZE, IGNORE *****DONE*****
+            int tempserv=0;
+            boolean canadd = false;
+            String tempHost = "";
+            for(String s : store){
+            	String[] tokens = s.split("\\=");
+            	//check starting statements
+            	//if this is a server
+            	if(tokens[0].matches("server[\\d].host")){
+            		
+            		//get the server number
+            		tempserv = Character.getNumericValue(tokens[0].charAt(6));
+            		//ignore if value is out of our list
+            		if(tempserv>=this.size){
+            			break;
+            		}
+            		//add null if second value is empty
+            		if(tokens.length<2){
+            			try {
+            				this.serverInfos.get(tempserv);
+            				
+            			} catch (IndexOutOfBoundsException e) {
+            				this.serverInfos.add(tempserv,null);
+                			
+            			}
+            			
+            		}else{
+            		//passed the tests
+            		tempHost=tokens[1];
+            		canadd=true;
+            		}
+            	}
+            	
+            	//CHECK PORT
+            	if(tokens[0].matches("server[\\d].port")){
+            		//check to see if they match
+            		int checkserv = Character.getNumericValue(tokens[0].charAt(6));
+            		//ignore if out of scope
+            		if(checkserv>=this.size){
+            			canadd=false;
+            			
+            		}
+            		//check if port value is provided
+            		if(tokens.length<2 || checkserv!=tempserv || !canadd){
+            			try {
+            				canadd=false;
+            				this.serverInfos.get(tempserv);
+            
+            			} catch (IndexOutOfBoundsException e) {
+            				this.serverInfos.add(tempserv,null);
+            				
+          
+            			}
+            		}else{
+            			//check if pair is valid
+            			try{
+            				int portnum = Integer.parseInt(tokens[1]);
+            				if(portnum<1023 || portnum >65536){
+            					throw new NumberFormatException("port invalid");
+            				} else{
+            					ServerInfo temp = new ServerInfo(tempHost,portnum);
+            					this.serverInfos.add(temp);
+            					canadd=false;
+            					
+            				}
+            			} catch(NumberFormatException e){
+            				System.out.println(e);
+                			try {
+                				canadd=false;
+                				this.serverInfos.get(tempserv);
+                			
+                			} catch (IndexOutOfBoundsException f) {
+                				this.serverInfos.add(tempserv,null);
+                    			
+                			}
+            			}
+            			
+            		
+            	}
+            }            		        		
+           }
+            for(int i=0;i<this.size;i++){
+    			try {
+    				this.serverInfos.get(i);
+    	
+    			} catch (IndexOutOfBoundsException e) {
+    				this.serverInfos.add(i,null);			
+    			}
+    			
+            }
+                            
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
     }
 
     public ArrayList<ServerInfo> getServerInfos() {
@@ -154,7 +214,7 @@ public class ServerInfoList {
     }
     
     public int getSize() {
-        return serverInfos.size();
+        return this.size;
     }
     // implement any helper method here if you need any
 }

@@ -8,16 +8,10 @@ public class ServerInfo {
         this.port = port;
     }
     public String getHost() {
-    	if(this.host==null){
-    		return null;
-    	}
         return host;
     }
 
     public int getPort() {
-    	if(this.port==0){
-    		return 0;
-    	}
         return port;
     }
 

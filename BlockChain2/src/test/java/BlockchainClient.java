@@ -17,7 +17,7 @@ public class BlockchainClient {
         pl.initialiseFromFile(configFileName);
        
         Scanner sc = new Scanner(System.in);
-        while (sc.hasNextLine()) {
+        while (true) {
         	try{
             String message = sc.nextLine();
             // implement your code here
@@ -125,7 +125,6 @@ public class BlockchainClient {
         		}
         		
         	} else if(message.startsWith("sd")){
-        		broadcast(pl,"cc");
         		//SHUTDOWN SERVER 
         		return;
         		

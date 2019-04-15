@@ -1,7 +1,7 @@
 import java.net.Socket;
 import java.util.Scanner;
 import java.io.*;
- 
+
  
 public class BlockchainClientRunnable implements Runnable {
  
@@ -37,15 +37,20 @@ public class BlockchainClientRunnable implements Runnable {
         	 String input = null;
         	 String temp = null;
         	while((input = inputReader.readLine())!=null) {
+        		if(input.equals("cc")){
+        			outWriter.println("cc");
+        			outWriter.close();
+        		}
         		if(input.equals("")){
         			reply+=input;
         			System.out.println(reply);
+        			outWriter.println("cc");
         			return;
         		}
         		reply+=input+"\n";
         		
         	}
-
+        	System.out.println("Server is not availables");
         	return;
         	//CLOSE CONNECTION BY SENDING CC
     	}

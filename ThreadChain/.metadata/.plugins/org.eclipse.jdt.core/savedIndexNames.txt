@@ -1,0 +1,2 @@
+INDEX VERSION 1.129+C:\Users\Charlie\Documents\GitHub\Java\ThreadChain\.metadata\.plugins\org.eclipse.jdt.core
+1067094681.index

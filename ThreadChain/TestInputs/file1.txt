@@ -1,0 +1,11 @@
+servers.num=1
+
+server0.host=localhost
+server0.port=8334
+
+server1.host=globalhost
+server1.port=8333
+
+server2.host=127.22.0.420
+server2.port=8335
+

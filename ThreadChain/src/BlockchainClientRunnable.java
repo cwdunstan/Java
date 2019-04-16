@@ -28,6 +28,7 @@ public class BlockchainClientRunnable implements Runnable {
     		//print start of thread
     		//CREATE A CONNECTION
     		Socket mySocket = new Socket(this.serverName,this.portNumber);
+    		mySocket.setSoTimeout(1000);
 			BufferedReader inputReader = new BufferedReader(new InputStreamReader(mySocket.getInputStream()));
         	PrintWriter outWriter = new PrintWriter(mySocket.getOutputStream(), true);
         	
@@ -37,21 +38,22 @@ public class BlockchainClientRunnable implements Runnable {
         	 String input = null;
         	 String temp = null;
         	while((input = inputReader.readLine())!=null) {
+        		reply+=input+"\n";
         		if(input.equals("")){
         			reply+=input;
-        			System.out.println(reply);
+        			outWriter.println("cc");
         			return;
         		}
-        		reply+=input+"\n";
         		
         	}
-
+        	inputReader.close();
+        	outWriter.flush();
+        	outWriter.close();
         	return;
         	//CLOSE CONNECTION BY SENDING CC
     	}
 	    catch(IOException e){
-	    	System.out.print(reply);
-	    	System.out.println("Server is not available\n");
+	    	reply+="Server is not available\n\n";
 	    	return;
 	    }
     	catch(IndexOutOfBoundsException e){
@@ -60,7 +62,7 @@ public class BlockchainClientRunnable implements Runnable {
         }
     }
     
-    public String getReply() {
+    synchronized public String getReply() {
         return reply;
     }
  

@@ -66,7 +66,16 @@ public class ServerInfoList {
             	//check starting statements
             	//if this is a server
             	if(tokens[0].matches("server[\\d].host")){
-            		
+            		if(canadd){
+            			try {
+            				canadd=false;
+            				this.serverInfos.get(tempserv);
+            				
+            			} catch (IndexOutOfBoundsException e) {
+            				this.serverInfos.add(tempserv,null);
+                			
+            			}
+            		}
             		//get the server number
             		tempserv = Character.getNumericValue(tokens[0].charAt(6));
             		//ignore if value is out of our list
@@ -115,7 +124,7 @@ public class ServerInfoList {
             			try{
             				int portnum = Integer.parseInt(tokens[1]);
             				if(portnum<1023 || portnum >65536){
-            					throw new NumberFormatException("port invalid");
+            					this.serverInfos.add(null);
             				} else{
             					ServerInfo temp = new ServerInfo(tempHost,portnum);
             					this.serverInfos.add(temp);
@@ -149,7 +158,7 @@ public class ServerInfoList {
             }
                             
 		} catch (FileNotFoundException e) {
-			e.printStackTrace();
+
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

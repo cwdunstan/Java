@@ -8,14 +8,14 @@ public class ServerInfo {
         this.port = port;
     }
     public String getHost() {
-    	if(this.host==null){
+    	if(this.host==null || this.host.equals("")){
     		return null;
     	}
         return host;
     }
 
     public int getPort() {
-    	if(this.port==0){
+    	if(this.port==0 || this.port<1024 || this.port>65535 ){
     		return 0;
     	}
         return port;

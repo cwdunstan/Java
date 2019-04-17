@@ -9,9 +9,24 @@ public class MyClassifier {
 		if(!validArgs(args)){
 			return;
 		}
+		//generate entry lists from files
 		ArrayList<entry> training =generate(args[0], true);
 		ArrayList<entry> testing =generate(args[1], false);
-
+		
+		//check values provided
+		if(training.size() == 0 || testing.size()==0){
+			System.out.println("Empty or invalid file.");
+			return;
+		}
+		//check both the same number of attributes
+		if(training.get(0).getValues().size()!=testing.get(0).getValues().size()){
+			System.out.println("Inconsistent attributes.");
+			return;
+		}
+		
+		//call algorithm
+		algoHandler(training,testing,args[2]);
+		
 		return;
 	}
 	
@@ -81,7 +96,9 @@ public class MyClassifier {
 	public static void algoHandler(ArrayList<entry> training, ArrayList<entry> testing, String arg){
 		//call naive bias
 		if(arg.matches("NB")){
-			
+			NB myCall = new NB(training,testing);
+			myCall.classify();
+			return;
 		}
 		
 		//call knn
@@ -92,6 +109,7 @@ public class MyClassifier {
 				return;
 			}
 			knn myCall = new knn(training,testing,k);
+			myCall.classify();
 			myCall.printResult();
 			return;
 		}

@@ -34,6 +34,9 @@ public class NB {
 				result.add("no");
 			}
 		}
+		for(String s : result){
+			System.out.println(s);
+		}
 			
 		return;
 		
@@ -48,24 +51,18 @@ public class NB {
 		
 		//calcualte deinsity values
 		double[] densitystore = new double[k];
-		boolean laplace = false;
 		for(int i=0;i<k;i++){
 			double sd = sdstore[i];
 			double mean = meanstore[i];
 			densitystore[i] = calcFunc(mean,sd,e.getValues().get(i));
-			if(densitystore[i]==0){
-				laplace = true;
-			}
 		}
-		//apply laplace correction if necessary
-		if(laplace){
-			for(int i=0;i<k;i++){
-				
-			}	
+		double start = densitystore[0];
+		for(int i=1;i<k;i++){
+			double temp = start;
+			start = temp * densitystore[i];
 		}
 		
-		
-		return 0;
+		return start;
 	}
 
 	public static double[] calcMean(double[][] matrix, int k){
@@ -96,7 +93,7 @@ public class NB {
 			for (int j = 0; j < matrix.length; j++) {
 				toCalc+=(Math.pow((matrix[j][i]-means[i]),2));
 			}
-			sdstore[i]=Math.sqrt(toCalc/matrix.length);
+			sdstore[i]=Math.sqrt(toCalc/(matrix.length-1));
 		}
 		return sdstore;
 		

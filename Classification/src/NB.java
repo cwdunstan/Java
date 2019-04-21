@@ -1,4 +1,5 @@
 import java.util.ArrayList;
+import java.util.Arrays;
 
 public class NB {
 
@@ -16,7 +17,8 @@ public class NB {
 	public static void classify(){
 		//split into yes and no
 		 ArrayList<entry> yeses = new ArrayList<entry>();
-		ArrayList<entry> noses = new ArrayList<entry>();
+		 ArrayList<entry> noses = new ArrayList<entry>();		 
+		 
 		for(entry e : train){
 			if(e.getMyClass().equals("yes")){
 				yeses.add(e);
@@ -27,11 +29,12 @@ public class NB {
 		//convert to 2d Matrix (slopy i know)
 		double[][] yesmatrix = translate(yeses);
 		double[][] nomatrix = translate(noses);
+		
 		for(entry e:test){
-			if(pdf(e,yesmatrix) >= pdf(e,nomatrix)){
-				result.add("yes");
-			}else{
+			if(pdf(e,yesmatrix)< pdf(e,nomatrix)){
 				result.add("no");
+			}else{
+				result.add("yes");
 			}
 		}
 		for(String s : result){
@@ -58,10 +61,10 @@ public class NB {
 		}
 		double start = densitystore[0];
 		for(int i=1;i<k;i++){
-			double temp = start;
-			start = temp * densitystore[i];
+			start = start * densitystore[i];
+
 		}
-		
+		start = start * divide(matrix.length,train.size());
 		return start;
 	}
 
@@ -86,14 +89,19 @@ public class NB {
 	
 	public static double[] calcSD(double[][] matrix, double[] means, int k){
 		double[] sdstore = new double[k];
-		//System.out.println(matrix[0][7]);
 		//traverse columns
 		for(int i = 0;i<k;i++){
 			double toCalc =0;
 			for (int j = 0; j < matrix.length; j++) {
 				toCalc+=(Math.pow((matrix[j][i]-means[i]),2));
 			}
-			sdstore[i]=Math.sqrt(toCalc/(matrix.length-1));
+			int n = matrix.length-1;
+			if(n!=0) {
+				sdstore[i]=Math.sqrt(toCalc/(n));
+			}else {
+				sdstore[i]=0;
+			}
+
 		}
 		return sdstore;
 		
@@ -102,7 +110,7 @@ public class NB {
 	public static double calcFunc(double mean, double sd, double val){
 		double results;
 		if(sd!=0){
-			results = (1/( sd * Math.sqrt( 2 * Math.PI ))) * (Math.pow(Math.E,-((Math.pow((val - mean ), 2)/(2 * Math.pow(sd, 2))))));
+			results = (1/( sd * Math.sqrt( 2 * Math.PI ))) * Math.exp(-Math.pow((val-mean),2)/(2*Math.pow(sd,2)));
 		}else{
 			results = 1;
 		}
@@ -120,4 +128,8 @@ public class NB {
 		return trainingD;
 	}
 	
+	public static double divide(double top, double bot) {
+		  return top/bot;
+		}
 }
+

@@ -24,8 +24,12 @@ public class MyClassifier {
 			return;
 		}
 		
-		//call algorithm
-		algoHandler(training,testing,args[2]);
+		//call algorithm, store result in arraylist result
+		ArrayList<String> result = algoHandler(training,testing,args[2]);
+		
+		fold myfold = new fold();
+		myfold.fold(10, training);
+		System.out.println();
 		
 		return;
 	}
@@ -93,12 +97,13 @@ public class MyClassifier {
 		
 	}
 
-	public static void algoHandler(ArrayList<entry> training, ArrayList<entry> testing, String arg){
+	public static ArrayList<String> algoHandler(ArrayList<entry> training, ArrayList<entry> testing, String arg){
 		//call naive bias
 		if(arg.matches("NB")){
 			NB myCall = new NB(training,testing);
-			myCall.classify();
-			return;
+			ArrayList<String> result = myCall.classify();
+			myCall.printResult();
+			return result;
 		}
 		
 		//call knn
@@ -106,13 +111,14 @@ public class MyClassifier {
 			int k=Character.getNumericValue(arg.charAt(0));
 			if (k<1){
 				System.out.println("Invalid number of neighbours.");
-				return;
+				return null;
 			}
 			knn myCall = new knn(training,testing,k);
-			myCall.classify();
+			ArrayList<String> result = myCall.classify();
 			myCall.printResult();
-			return;
+			return result;
 		}
+		return null;
 	}
 
 

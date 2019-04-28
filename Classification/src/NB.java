@@ -14,7 +14,7 @@ public class NB {
 		
 	}
 	
-	public static void classify(){
+	public static ArrayList<String> classify(){
 		//split into yes and no
 		 ArrayList<entry> yeses = new ArrayList<entry>();
 		 ArrayList<entry> noses = new ArrayList<entry>();		 
@@ -37,12 +37,15 @@ public class NB {
 				result.add("yes");
 			}
 		}
+			
+		return result;
+		
+	}
+	public void printResult() {
 		for(String s : result){
 			System.out.println(s);
 		}
-			
 		return;
-		
 	}
 	
 	private static double pdf(entry e, double[][] matrix) {

@@ -17,7 +17,7 @@ public class knn {
 		
 	}
 
-	public void classify(){
+	public ArrayList<String> classify(){
 		for(entry e : test){
 			ArrayList<entry> min = new ArrayList<>();
 			for(entry t : train){
@@ -43,6 +43,7 @@ public class knn {
 			}
 			result.add(majority(min));
 		}
+		return result;
 	}
 	public void printResult() {
 		for(String s : result){

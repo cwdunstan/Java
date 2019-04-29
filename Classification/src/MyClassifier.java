@@ -4,7 +4,7 @@ import java.util.*;
 public class MyClassifier {
 
 	
-	public static void main (String[] args) {
+	public static void main (String[] args) throws FileNotFoundException, UnsupportedEncodingException {
 		//Validate inputs provided
 		if(!validArgs(args)){
 			return;
@@ -27,10 +27,10 @@ public class MyClassifier {
 		//call algorithm, store result in arraylist result
 		ArrayList<String> result = algoHandler(training,testing,args[2]);
 		
-		fold myfold = new fold();
-		myfold.fold(10, training);
+		//calls fold validation
+		folds myfold = new folds();
+		myfold.folds(10, training, args[2]);
 		System.out.println();
-		
 		return;
 	}
 	

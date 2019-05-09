@@ -100,7 +100,7 @@ public class MyClassifier {
 	public static ArrayList<String> algoHandler(ArrayList<entry> training, ArrayList<entry> testing, String arg){
 		//call naive bias
 		if(arg.matches("NB")){
-			NB myCall = new NB(training,testing);
+			knn myCall = new knn(training,testing,5);
 			ArrayList<String> result = myCall.classify();
 			myCall.printResult();
 			return result;

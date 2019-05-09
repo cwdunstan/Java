@@ -18,6 +18,15 @@ public class folds {
 		
 		//pass to fold generating function
 		ArrayList<ArrayList<entry>> completeFolds = genFolds(n);
+		float avg =0;
+		for(int i=0;i<10;i++){
+			avg+=calcAccuracy(completeFolds);
+			System.out.println(i);
+		}
+		System.out.println(avg/10);
+		
+		
+		
 		
 		//write to csv file
 		try {
@@ -132,4 +141,35 @@ public class folds {
 		return totalFolds;
 	}
 
+	private static double calcAccuracy(ArrayList<ArrayList<entry>> completeFolds){
+		float total=0;
+		for(int i=0;i<10;i++){
+			ArrayList<entry> tempTest = completeFolds.get(i);
+			ArrayList<ArrayList<entry>> testFolds = new ArrayList<ArrayList<entry>>();
+			testFolds.addAll(completeFolds);
+			testFolds.remove(i);
+			ArrayList<entry> toTest = merge(testFolds);
+			knn myCall = new knn(toTest,tempTest,1);
+			ArrayList<String> result = myCall.classify();
+			//check percentage
+			float counter =0;
+			for(int j=0;j<result.size();j++){
+				if(result.get(j).equals(tempTest.get(j).getMyClass())){
+					counter++;
+				}
+			}
+			total+=(counter/result.size()*100);
+			
+		}		
+		return total/10;
+	}
+	
+	private static ArrayList<entry> merge(ArrayList<ArrayList<entry>> splitfolds){
+		ArrayList<entry> tempTest = new ArrayList<>();
+		tempTest.addAll(splitfolds.get(0));
+		for(int i=1;i<9;i++){
+			tempTest.addAll(splitfolds.get(i));
+		}		
+		return tempTest;
+	}
 }

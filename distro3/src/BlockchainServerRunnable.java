@@ -39,6 +39,7 @@ public class BlockchainServerRunnable implements Runnable{
                 if (inputLine == null) {
                     break;
                 }
+                
 
                 String[] tokens = inputLine.split("\\|");
                 switch (tokens[0]) {
@@ -53,6 +54,30 @@ public class BlockchainServerRunnable implements Runnable{
                         outWriter.print(blockchain.toString() + "\n");
                         outWriter.flush();
                         break;
+                    /**heartbeat 
+                     * format: hb|portnum|sequencenum
+                     * to do: add server info + time to serverStatus
+                     * if no hb for a server in 4 seconds, remove from serverStatus
+                     * if server is not already in serverStatus, broadcast: 
+                     * 'si|myPort|serverIP|serverPort' to all but that server
+                     * Don't attempt to connect to a server for more that 2 seconds
+                   	**/
+                    case "hb":
+                    	//check valid length
+                    	if(tokens.length==3) {
+                    		//create server info object
+                    		
+                    	}                    	
+                        break;
+                    /**
+                     * receiving server info 
+                     * If already known (in serverStatus) don't broadcast
+                     * otherwise relay the message to all but the sender, and the subject 
+                     * (with an update myPort value)
+                     */
+                    case "si":
+                    	
+                        break;
                     case "cc":
                         return;
                     default:
@@ -61,7 +86,6 @@ public class BlockchainServerRunnable implements Runnable{
                 }
             }
         } catch (IOException e) {
-        } catch (InterruptedException e) {
         }
     }
 }

@@ -35,7 +35,7 @@ public class BlockchainServer {
 
         ServerSocket serverSocket = null;
         try {
-            serverSocket = new ServerSocket(localPortNumber);
+            serverSocket = new ServerSocket(localPort);
 
             while (true) {
                 Socket clientSocket = serverSocket.accept();

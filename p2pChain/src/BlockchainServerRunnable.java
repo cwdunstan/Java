@@ -1,5 +1,7 @@
 import java.io.*;
 import java.net.Socket;
+import java.net.UnknownHostException;
+import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -24,10 +26,13 @@ public class BlockchainServerRunnable implements Runnable{
             serverHandler(clientSocket.getInputStream(), clientSocket.getOutputStream());
             clientSocket.close();
         } catch (IOException e) {
-        }
+        } catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
     }
 
-    public void serverHandler(InputStream clientInputStream, OutputStream clientOutputStream) {
+    public void serverHandler(InputStream clientInputStream, OutputStream clientOutputStream) throws InterruptedException {
 
         BufferedReader inputReader = new BufferedReader(
                 new InputStreamReader(clientInputStream));
@@ -43,7 +48,6 @@ public class BlockchainServerRunnable implements Runnable{
                 if (inputLine == null) {
                     break;
                 }
-
                 String[] tokens = inputLine.split("\\|");
                 switch (tokens[0]) {
                     case "tx":
@@ -54,12 +58,23 @@ public class BlockchainServerRunnable implements Runnable{
                         outWriter.flush();
                         break;
                     case "pb":
-                        outWriter.print(blockchain.toString() + "\n");
-                        outWriter.flush();
+                        outWriter.print(blockchain.toString()+"\n");
+                    outWriter.flush();
                         break;
                     case "hb":
-                        outWriter.print(blockchain.toString() + "\n");
-                        outWriter.flush();
+                            // relay
+                            ArrayList<Thread> threadArrayList = new ArrayList<>();
+                            for (ServerInfo serv : serverStatus.keySet()) {
+                                Thread thread = new Thread(new HeartBeatClientRunnable(getIP(serv.getHost()),serv.getPort(), "si|"+clientSocket.getLocalPort()+"|"+getIP(serv.getHost())+"|"+serv.getPort()));
+                                threadArrayList.add(thread);
+                                thread.start();
+                            }
+                            for (Thread thread : threadArrayList) {
+                                thread.join();
+                            }
+                        break;
+                    case "si":
+                    	System.out.println(inputLine);
                         break;
                     case "cc":
                         return;
@@ -70,5 +85,26 @@ public class BlockchainServerRunnable implements Runnable{
             }
         } catch (IOException e) {
         }
+    }
+    
+    public static String getIP(String host){
+    	InetAddress inetAddr;
+		try {
+			inetAddr = InetAddress.getByName(host);
+	        byte[] rawadd = inetAddr.getAddress();
+	        String ip = "";
+	        for (int i=0;i < rawadd.length; i++) {
+	            if(i>0){
+	                ip+=".";
+	            }
+	            ip += rawadd[i] & 0xFF;
+	        }
+	        return ip;
+		} catch (UnknownHostException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+        return null;
     }
 }

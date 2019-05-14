@@ -8,17 +8,18 @@ import java.util.Arrays;
 import java.util.Base64;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Map;
 
 public class BlockchainServerRunnable implements Runnable{
 
     private Socket clientSocket;
     private Blockchain blockchain;
-    private HashMap<ServerInfo, Date> serverStatus;
+    private Map<ServerInfo, Date> serverStatus;
 
-    public BlockchainServerRunnable(Socket clientSocket, Blockchain blockchain, HashMap<ServerInfo, Date> serverStatus) {
+    public BlockchainServerRunnable(Socket clientSocket, Blockchain blockchain, Map<ServerInfo, Date> serverStatus2) {
         this.clientSocket = clientSocket;
         this.blockchain = blockchain;
-        this.serverStatus = serverStatus;
+        this.serverStatus = serverStatus2;
     }
 
     public void run() {
@@ -62,19 +63,42 @@ public class BlockchainServerRunnable implements Runnable{
                     outWriter.flush();
                         break;
                     case "hb":
-                            // relay
+                            // create temp serverInfo
+                    		ServerInfo temps = new ServerInfo(remoteIP, Integer.parseInt(tokens[1]));
+                    		//if this is a new HB, broadcast SI
+                    		if(!serverStatus.containsKey(temps)){
+                              ArrayList<Thread> threadArrayList = new ArrayList<>();
+                              for (ServerInfo serv : serverStatus.keySet()) {
+                            	  if(serv.getPort()!=Integer.parseInt(tokens[1])){
+                                  Thread thread = new Thread(new HeartBeatClientRunnable(serv.getHost(),serv.getPort(), "si|"+clientSocket.getLocalPort()+"|"+serv.getHost()+"|"+temps.getPort()));
+                                  threadArrayList.add(thread);
+                                  thread.start();
+                            	  }
+                              }
+                              for (Thread thread : threadArrayList) {
+                                  thread.join();
+                              }
+                    		}
+                    		//update values
+                    		serverStatus.put(temps, new Date());
+                        break;
+                    case "si":
+                    	ServerInfo temp = new ServerInfo(tokens[2], Integer.parseInt(tokens[3]));
+                		if(!serverStatus.containsKey(temp)){
                             ArrayList<Thread> threadArrayList = new ArrayList<>();
                             for (ServerInfo serv : serverStatus.keySet()) {
-                                Thread thread = new Thread(new HeartBeatClientRunnable(getIP(serv.getHost()),serv.getPort(), "si|"+clientSocket.getLocalPort()+"|"+getIP(serv.getHost())+"|"+serv.getPort()));
+                            	if(serv.getPort()!=Integer.parseInt(tokens[1])){
+                                Thread thread = new Thread(new HeartBeatClientRunnable(serv.getHost(),serv.getPort(), "si|"+clientSocket.getLocalPort()+"|"+serv.getHost()+"|"+temp.getPort()));
                                 threadArrayList.add(thread);
                                 thread.start();
+                            }
                             }
                             for (Thread thread : threadArrayList) {
                                 thread.join();
                             }
-                        break;
-                    case "si":
-                    	System.out.println(inputLine);
+                  		}
+                  		//update values
+                  		serverStatus.put(temp, new Date());        				
                         break;
                     case "cc":
                         return;
@@ -88,9 +112,8 @@ public class BlockchainServerRunnable implements Runnable{
     }
     
     public static String getIP(String host){
-    	InetAddress inetAddr;
 		try {
-			inetAddr = InetAddress.getByName(host);
+			InetAddress inetAddr = InetAddress.getByName(host);
 	        byte[] rawadd = inetAddr.getAddress();
 	        String ip = "";
 	        for (int i=0;i < rawadd.length; i++) {
@@ -104,7 +127,6 @@ public class BlockchainServerRunnable implements Runnable{
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-
         return null;
     }
 }

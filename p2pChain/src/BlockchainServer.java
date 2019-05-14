@@ -1,8 +1,12 @@
 import java.io.*;
+import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.UnknownHostException;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Map;
 
 public class BlockchainServer {
 
@@ -18,7 +22,7 @@ public class BlockchainServer {
 
         try {
             localPort = Integer.parseInt(args[0]);
-            remoteHost = args[1];
+            remoteHost = getIP(args[1]);
             remotePort = Integer.parseInt(args[2]);
         } catch (NumberFormatException e) {
             return;
@@ -26,7 +30,7 @@ public class BlockchainServer {
 
         Blockchain blockchain = new Blockchain();
 
-        HashMap<ServerInfo, Date> serverStatus = new HashMap<ServerInfo, Date>();
+        Map<ServerInfo, Date> serverStatus = Collections.synchronizedMap(new HashMap<>());
         serverStatus.put(new ServerInfo(remoteHost, remotePort), new Date());
 
         PeriodicCommitRunnable pcr = new PeriodicCommitRunnable(blockchain);
@@ -36,6 +40,10 @@ public class BlockchainServer {
         PeriodicHeartBeatRunnable phb = new PeriodicHeartBeatRunnable(localPort,serverStatus);
         Thread phbt = new Thread(phb);
         phbt.start();
+        
+        PeriodicStatusRunnable psr = new PeriodicStatusRunnable(serverStatus);
+        Thread psrt = new Thread(psr);
+        psrt.start();
 
 
         ServerSocket serverSocket = null;
@@ -59,4 +67,24 @@ public class BlockchainServer {
             }
         }
     }
+    
+    public static String getIP(String host){
+		try {
+			InetAddress inetAddr = InetAddress.getByName(host);
+	        byte[] rawadd = inetAddr.getAddress();
+	        String ip = "";
+	        for (int i=0;i < rawadd.length; i++) {
+	            if(i>0){
+	                ip+=".";
+	            }
+	            ip += rawadd[i] & 0xFF;
+	        }
+	        return ip;
+		} catch (UnknownHostException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+        return null;
+    }
+
 }

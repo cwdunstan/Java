@@ -3,15 +3,16 @@ import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Map;
 
 public class PeriodicHeartBeatRunnable implements Runnable {
 
-    private HashMap<ServerInfo, Date> serverStatus;
+    private Map<ServerInfo, Date> serverStatus;
     private int sequenceNumber;
     private int localPort;
 
-    public PeriodicHeartBeatRunnable(int localPort,HashMap<ServerInfo, Date> serverStatus) {
-        this.serverStatus = serverStatus;
+    public PeriodicHeartBeatRunnable(int localPort,Map<ServerInfo, Date> serverStatus2) {
+        this.serverStatus = serverStatus2;
         this.localPort=localPort;
         this.sequenceNumber = 0;
     }

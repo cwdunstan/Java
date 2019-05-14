@@ -19,7 +19,6 @@ public class PeriodicStatusRunnable implements Runnable {
                 // if greater than 2T, remove
                 if (new Date().getTime() - serverStatus.get(serv).getTime() > 4000) {
                     serverStatus.remove(serv);
-                }else{
                 }
             }
 

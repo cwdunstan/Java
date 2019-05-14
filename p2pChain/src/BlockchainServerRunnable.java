@@ -62,6 +62,7 @@ public class BlockchainServerRunnable implements Runnable{
                         outWriter.print(blockchain.toString()+"\n");
                     outWriter.flush();
                         break;
+                    //HEART BEAT
                     case "hb":
                             // create temp serverInfo
                     		ServerInfo temps = new ServerInfo(remoteIP, Integer.parseInt(tokens[1]));
@@ -82,6 +83,7 @@ public class BlockchainServerRunnable implements Runnable{
                     		//update values
                     		serverStatus.put(temps, new Date());
                         break;
+                   //SERVER INFO
                     case "si":
                     	ServerInfo temp = new ServerInfo(tokens[2], Integer.parseInt(tokens[3]));
                 		if(!serverStatus.containsKey(temp)){
@@ -100,6 +102,25 @@ public class BlockchainServerRunnable implements Runnable{
                   		//update values
                   		serverStatus.put(temp, new Date());        				
                         break;
+                    //LAST BLOCK
+                    case "lb":
+                        System.out.println(inputLine);
+                        //WHEN TO ISSUE CATCHUPS
+                        //if my length is less than my neighbours
+                        if(Integer.parseInt(tokens[2])> blockchain.getLength()){
+                        	//send my current head hash
+                        	//receieve a chain to append
+                        }
+                        //if my length is the same and not 0
+                        else if(Integer.parseInt(tokens[2]) == blockchain.getLength() && blockchain.getLength()>0){
+                        	String encodedString = Base64.getEncoder().encodeToString(blockchain.getHead().calculateHash());
+                        	//their hash is bigger than mine
+                        	if(compareHash(tokens[3],encodedString)==1){
+                        		//cu|hash
+                        	}
+                        }       	
+                        
+                    	break;
                     case "cc":
                         return;
                     default:
@@ -128,5 +149,21 @@ public class BlockchainServerRunnable implements Runnable{
 			e.printStackTrace();
 		}
         return null;
+    }
+    //returns 0 if equal,  1 if hash1 > hash 2, 2 if hash 1 < than 2
+    public int compareHash(String hash1, String hash2){
+    	byte[] h1 =  hash1.getBytes();
+    	byte[] h2 =  hash2.getBytes();
+    	if(h1.length==h2.length){
+    		for(int i=0;i<h1.length;i++){
+    			if(h1[i]>h2[i]){
+    				return 1;
+    			}else if(h2[i]>h1[i]){
+    				return 2;
+    			}
+    		}
+    		return 0;
+    	}
+    	return 0;
     }
 }

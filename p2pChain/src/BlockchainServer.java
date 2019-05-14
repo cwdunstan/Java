@@ -44,6 +44,10 @@ public class BlockchainServer {
         PeriodicStatusRunnable psr = new PeriodicStatusRunnable(serverStatus);
         Thread psrt = new Thread(psr);
         psrt.start();
+        
+        PeriodicBlockSend pbs = new PeriodicBlockSend(localPort,serverStatus,blockchain);
+        Thread pbst = new Thread(pbs);
+        pbst.start();
 
 
         ServerSocket serverSocket = null;

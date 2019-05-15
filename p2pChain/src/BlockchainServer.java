@@ -10,7 +10,7 @@ import java.util.Map;
 
 public class BlockchainServer {
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
 
         if (args.length != 3) {
             return;
@@ -49,11 +49,11 @@ public class BlockchainServer {
         Thread pbst = new Thread(pbs);
         pbst.start();
 
-
         ServerSocket serverSocket = null;
         try {
             serverSocket = new ServerSocket(localPort);
 
+        	
             while (true) {
                 Socket clientSocket = serverSocket.accept();
                 new Thread(new BlockchainServerRunnable(clientSocket, blockchain, serverStatus)).start();

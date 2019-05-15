@@ -38,12 +38,12 @@ public class BlockchainServerRunnable implements Runnable{
         BufferedReader inputReader = new BufferedReader(
                 new InputStreamReader(clientInputStream));
         PrintWriter outWriter = new PrintWriter(clientOutputStream, true);
-        
+
         String localIP = (((InetSocketAddress) clientSocket.getLocalSocketAddress()).getAddress()).toString().replace("/", "");
         String remoteIP = (((InetSocketAddress) clientSocket.getRemoteSocketAddress()).getAddress()).toString().replace("/", "");
-        
-        
+
         try {
+        	ObjectOutputStream oos = new ObjectOutputStream(clientOutputStream);
             while (true) {
                 String inputLine = inputReader.readLine();
                 if (inputLine == null) {
@@ -104,18 +104,23 @@ public class BlockchainServerRunnable implements Runnable{
                         break;
                     //LAST BLOCK
                     case "lb":
-                        System.out.println(inputLine);
                         //WHEN TO ISSUE CATCHUPS
                         //if my length is less than my neighbours
-                        
+                        System.out.println(inputLine);
                         if(Integer.parseInt(tokens[2])> blockchain.getLength()){
+
                         	//send my current head hash
                         	//other thread will search for this thread, sending a subchain to append.
                         	//receive a chain to append
                 			if(blockchain.getLength()>0){
                 				String encodedhash = Base64.getEncoder().encodeToString(blockchain.getHead().calculateHash());
-                                Thread thread = new Thread(new HeartBeatClientRunnable(remoteIP,Integer.parseInt(tokens[1]), "cu|"+encodedhash));
+                				Thread thread = new Thread(new catchUpRunnable(remoteIP,Integer.parseInt(tokens[1]), "cu|"+encodedhash,blockchain));
                                 thread.start();
+                                
+                			}else{
+                                Thread thread = new Thread(new catchUpRunnable(remoteIP,Integer.parseInt(tokens[1]), "cu",blockchain));
+                                thread.start();   
+
                 			}
 
                         	
@@ -132,6 +137,18 @@ public class BlockchainServerRunnable implements Runnable{
                     	break;
                     case "cu":
                         System.out.println(inputLine);
+                        if(tokens.length==1){
+                        	oos.writeObject(blockchain.getHead());
+                        	oos.flush();
+                        }else{
+                        	//initialize a new blockchain with same header 
+                        	Blockchain tempchain = new Blockchain();
+                        	tempchain = blockchain;
+                        	//iterate through
+
+                        	oos.writeObject(tempchain);
+                        	oos.flush();
+                        }
                         break;
                     case "cc":
                         return;
@@ -141,7 +158,9 @@ public class BlockchainServerRunnable implements Runnable{
                 }
             }
         } catch (IOException e) {
-        }
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
     }
     
     public static String getIP(String host){

@@ -1,8 +1,9 @@
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Base64;
+import java.io.Serializable;
 
-public class Blockchain {
+public class Blockchain implements java.io.Serializable{
 
     private Block head;
     private ArrayList<Transaction> pool;

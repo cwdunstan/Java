@@ -107,20 +107,32 @@ public class BlockchainServerRunnable implements Runnable{
                         System.out.println(inputLine);
                         //WHEN TO ISSUE CATCHUPS
                         //if my length is less than my neighbours
+                        
                         if(Integer.parseInt(tokens[2])> blockchain.getLength()){
                         	//send my current head hash
-                        	//receieve a chain to append
+                        	//other thread will search for this thread, sending a subchain to append.
+                        	//receive a chain to append
+                			if(blockchain.getLength()>0){
+                				String encodedhash = Base64.getEncoder().encodeToString(blockchain.getHead().calculateHash());
+                                Thread thread = new Thread(new HeartBeatClientRunnable(remoteIP,Integer.parseInt(tokens[1]), "cu|"+encodedhash));
+                                thread.start();
+                			}
+
+                        	
                         }
                         //if my length is the same and not 0
                         else if(Integer.parseInt(tokens[2]) == blockchain.getLength() && blockchain.getLength()>0){
                         	String encodedString = Base64.getEncoder().encodeToString(blockchain.getHead().calculateHash());
                         	//their hash is bigger than mine
                         	if(compareHash(tokens[3],encodedString)==1){
-                        		//cu|hash
+                        		//cu|hash|
                         	}
                         }       	
                         
                     	break;
+                    case "cu":
+                        System.out.println(inputLine);
+                        break;
                     case "cc":
                         return;
                     default:

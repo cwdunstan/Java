@@ -10,7 +10,7 @@ import java.util.Map;
 
 public class BlockchainServer {
 
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) throws IOException{
 
         if (args.length != 3) {
             return;
@@ -40,10 +40,6 @@ public class BlockchainServer {
         PeriodicHeartBeatRunnable phb = new PeriodicHeartBeatRunnable(localPort,serverStatus);
         Thread phbt = new Thread(phb);
         phbt.start();
-        
-        PeriodicStatusRunnable psr = new PeriodicStatusRunnable(serverStatus);
-        Thread psrt = new Thread(psr);
-        psrt.start();
         
         PeriodicBlockSend pbs = new PeriodicBlockSend(localPort,serverStatus,blockchain);
         Thread pbst = new Thread(pbs);

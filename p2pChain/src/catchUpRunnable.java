@@ -1,11 +1,13 @@
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.PrintWriter;
 import java.net.InetSocketAddress;
-import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.Base64;
 
+ 
 public class catchUpRunnable implements Runnable {
 	
     private String ip;
@@ -22,28 +24,20 @@ public class catchUpRunnable implements Runnable {
 	@Override
 	public void run() {
         try {
-        	
             // create socket with a timeout of 2 seconds
             Socket toServer = new Socket();
             toServer.connect(new InetSocketAddress(ip, port), 2000);
-            PrintWriter printWriter = new PrintWriter(toServer.getOutputStream(), true);
-            ObjectInputStream ois = new ObjectInputStream(toServer.getInputStream());
-            // send the message forward
-            printWriter.println(message);
-            printWriter.flush();
-            if(message.equals("cu")){
-	            Block temp = (Block) ois.readObject();
-	            blockchain.setHead(temp);
-	            blockchain.setLength(blockchain.getLength()+1);
-            }else if(message.startsWith("cu|")){
-            	Blockchain temp = (Blockchain) ois.readObject();
-            	System.out.println(temp.toString());
-            }
-            // close printWriter and socket
-            ois.close();
-            printWriter.close();
-            toServer.close();
-        } catch (IOException | ClassNotFoundException e) {
+            
+            //buffed reader / object output -> read in "CU", 
+            ObjectOutputStream oos = new ObjectOutputStream(toServer.getOutputStream());
+            BufferedReader inputReader = new BufferedReader(
+                    new InputStreamReader(toServer.getInputStream()));
+            
+            
+            
+            
+        } catch (IOException  e) {
+        	System.out.println(e.getStackTrace());
         }
 	}
 }

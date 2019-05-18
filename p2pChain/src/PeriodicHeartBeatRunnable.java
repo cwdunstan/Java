@@ -23,6 +23,11 @@ public class PeriodicHeartBeatRunnable implements Runnable {
             // broadcast HeartBeat message to all peers
             ArrayList<Thread> threadArrayList = new ArrayList<>();
             for (ServerInfo serverInfo : serverStatus.keySet()) {
+            	//remove 4 second laggers
+                if (new Date().getTime() - serverStatus.get(serverInfo).getTime() > 4000) {
+                    serverStatus.remove(serverInfo);
+                }
+                //send heartbeat
 				try {
 					InetAddress inetAddr = InetAddress.getByName(serverInfo.getHost());
 		            byte[] rawadd = inetAddr.getAddress();

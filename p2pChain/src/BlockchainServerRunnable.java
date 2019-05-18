@@ -9,19 +9,19 @@ import java.util.Base64;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
-
+ 
 public class BlockchainServerRunnable implements Runnable{
-
+ 
     private Socket clientSocket;
     private Blockchain blockchain;
     private Map<ServerInfo, Date> serverStatus;
-
+ 
     public BlockchainServerRunnable(Socket clientSocket, Blockchain blockchain, Map<ServerInfo, Date> serverStatus2) {
         this.clientSocket = clientSocket;
         this.blockchain = blockchain;
         this.serverStatus = serverStatus2;
     }
-
+ 
     public void run() {
         try {
             serverHandler(clientSocket.getInputStream(), clientSocket.getOutputStream());
@@ -30,25 +30,30 @@ public class BlockchainServerRunnable implements Runnable{
         } catch (InterruptedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+		} catch (ClassNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
     }
-
-    public void serverHandler(InputStream clientInputStream, OutputStream clientOutputStream) throws InterruptedException {
-
+ 
+    public void serverHandler(InputStream clientInputStream, OutputStream clientOutputStream) throws InterruptedException, ClassNotFoundException {
+ 
         BufferedReader inputReader = new BufferedReader(
                 new InputStreamReader(clientInputStream));
         PrintWriter outWriter = new PrintWriter(clientOutputStream, true);
 
+        
         String localIP = (((InetSocketAddress) clientSocket.getLocalSocketAddress()).getAddress()).toString().replace("/", "");
         String remoteIP = (((InetSocketAddress) clientSocket.getRemoteSocketAddress()).getAddress()).toString().replace("/", "");
-
+ 
         try {
-        	ObjectOutputStream oos = new ObjectOutputStream(clientOutputStream);
             while (true) {
                 String inputLine = inputReader.readLine();
                 if (inputLine == null) {
                     break;
                 }
+                System.out.println(inputLine);
+
                 String[] tokens = inputLine.split("\\|");
                 switch (tokens[0]) {
                     case "tx":
@@ -60,7 +65,7 @@ public class BlockchainServerRunnable implements Runnable{
                         break;
                     case "pb":
                         outWriter.print(blockchain.toString()+"\n");
-                    outWriter.flush();
+                        outWriter.flush();
                         break;
                     //HEART BEAT
                     case "hb":
@@ -93,7 +98,7 @@ public class BlockchainServerRunnable implements Runnable{
                                 Thread thread = new Thread(new HeartBeatClientRunnable(serv.getHost(),serv.getPort(), "si|"+clientSocket.getLocalPort()+"|"+serv.getHost()+"|"+temp.getPort()));
                                 threadArrayList.add(thread);
                                 thread.start();
-                            }
+                            	}
                             }
                             for (Thread thread : threadArrayList) {
                                 thread.join();
@@ -102,52 +107,68 @@ public class BlockchainServerRunnable implements Runnable{
                   		//update values
                   		serverStatus.put(temp, new Date());        				
                         break;
+                    
+                        
+                        
                     //LAST BLOCK
                     case "lb":
-                        //WHEN TO ISSUE CATCHUPS
-                        //if my length is less than my neighbours
-                        System.out.println(inputLine);
+                        //if my length is less than theirs
                         if(Integer.parseInt(tokens[2])> blockchain.getLength()){
-
-                        	//send my current head hash
-                        	//other thread will search for this thread, sending a subchain to append.
-                        	//receive a chain to append
-                			if(blockchain.getLength()>0){
-                				String encodedhash = Base64.getEncoder().encodeToString(blockchain.getHead().calculateHash());
-                				Thread thread = new Thread(new catchUpRunnable(remoteIP,Integer.parseInt(tokens[1]), "cu|"+encodedhash,blockchain));
-                                thread.start();
-                                
-                			}else{
-                                Thread thread = new Thread(new catchUpRunnable(remoteIP,Integer.parseInt(tokens[1]), "cu",blockchain));
-                                thread.start();   
-
-                			}
-
-                        	
-                        }
-                        //if my length is the same and not 0
-                        else if(Integer.parseInt(tokens[2]) == blockchain.getLength() && blockchain.getLength()>0){
-                        	String encodedString = Base64.getEncoder().encodeToString(blockchain.getHead().calculateHash());
-                        	//their hash is bigger than mine
-                        	if(compareHash(tokens[3],encodedString)==1){
-                        		//cu|hash|
+                    		//create a socket
+                            Socket toClient = new Socket();
+                            System.out.println("lb:"+remoteIP+" port: "+tokens[1]);
+                            toClient.connect(new InetSocketAddress(remoteIP, Integer.parseInt(tokens[1])), 2000);
+                            PrintWriter clientWriter = new PrintWriter(toClient.getOutputStream(), true);
+                            
+                            //send plan cu
+                            if(blockchain.getLength()==0){
+                            	clientWriter.print("cu");
+                            	clientWriter.flush();
+                            	boolean check=true;
+                                System.out.println("INPUT READY");
+                            	while (check) {
+                            	   try{
+                                       ObjectInputStream ois = new ObjectInputStream(toClient.getInputStream());
+                            		   System.out.println("ready");
+                            	       System.out.println(ois.readObject());
+                            	   } catch(EOFException ex){
+                            		   System.out.println("eof");
+                            	       check=false;
+                            	   }
+                            	}
                         	}
+                            //if equal lengths, and not 0
+                            else if(Integer.parseInt(tokens[2]) == blockchain.getLength()){
+                            	
+                        	}
+                            //theirs is longer, and both are not 0
+                            else{
+                            	clientWriter.print("cu|"+Base64.getEncoder().encode(blockchain.getHead().getCurrentHash()));
+                            	clientWriter.flush();
+                        	}
+                         toClient.close();   
                         }       	
                         
                     	break;
                     case "cu":
-                        System.out.println(inputLine);
+                    	System.out.println("cu");
+                    	//establish socket from Q to P, buffer reader & object output
+                    	Socket toServer = new Socket();
+                    	toServer.connect(new InetSocketAddress(remoteIP, clientSocket.getLocalPort()), 2000);
+                        BufferedReader clientReader = new BufferedReader(new InputStreamReader(toServer.getInputStream()));
+                        ObjectOutputStream oos = new ObjectOutputStream(new BufferedOutputStream(toServer.getOutputStream()));
+                        System.out.println("OUT READY");
+                    	//send head
                         if(tokens.length==1){
-                        	oos.writeObject(blockchain.getHead());
-                        	oos.flush();
-                        }else{
-                        	//initialize a new blockchain with same header 
-                        	Blockchain tempchain = new Blockchain();
-                        	tempchain = blockchain;
-                        	//iterate through
+                        	if(blockchain.getLength()>0){
+                        		oos.writeObject(blockchain.getHead());
+                        		oos.flush();
+                        		System.out.println("WRITTEN");
+                        	}
+                        }
+                        //more work
+                        else{
 
-                        	oos.writeObject(tempchain);
-                        	oos.flush();
                         }
                         break;
                     case "cc":
@@ -198,3 +219,26 @@ public class BlockchainServerRunnable implements Runnable{
     	return 0;
     }
 }
+
+
+//Blockchain tempchain = new Blockchain();
+//Block temphead = new Block();                       
+//temphead = blockchain.getHead();
+//tempchain.setHead(temphead);
+//tempchain.setLength(tempchain.getLength()+1);
+////iterate through
+//Block t = blockchain.getHead();
+//Block g = tempchain.getHead();
+//
+//while(t.getPreviousBlock()!=null){
+//	if(Base64.getEncoder().encodeToString(t.getPreviousHash()).equals(tokens[1])){
+//		break;
+//	}else{
+//		Block f = new Block();
+//		f = t.getPreviousBlock();
+//		g.setPreviousBlock(f);
+//		g=g.getPreviousBlock();
+//		t=t.getPreviousBlock();
+//		tempchain.setLength(tempchain.getLength()+1);
+//	}
+//}

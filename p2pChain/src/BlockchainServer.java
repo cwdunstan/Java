@@ -44,6 +44,9 @@ public class BlockchainServer {
         PeriodicBlockSend pbs = new PeriodicBlockSend(localPort,serverStatus,blockchain);
         Thread pbst = new Thread(pbs);
         pbst.start();
+        
+        Thread sendBlock = new Thread(new sendBlockRun(remoteHost,remotePort,blockchain));
+     	sendBlock.start();
 
         ServerSocket serverSocket = null;
         try {

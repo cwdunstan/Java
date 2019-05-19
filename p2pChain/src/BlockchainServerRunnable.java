@@ -115,62 +115,21 @@ public class BlockchainServerRunnable implements Runnable{
                         //if my length is less than theirs
                         if(Integer.parseInt(tokens[2])> blockchain.getLength()){
                     		//create a socket
-                            Socket toClient = new Socket();
-                            System.out.println("lb:"+remoteIP+" port: "+tokens[1]);
-                            toClient.connect(new InetSocketAddress(remoteIP, Integer.parseInt(tokens[1])), 2000);
-                            PrintWriter clientWriter = new PrintWriter(toClient.getOutputStream(), true);
-                            
-                            //send plan cu
-                            if(blockchain.getLength()==0){
-                            	clientWriter.print("cu");
-                            	clientWriter.flush();
-                            	boolean check=true;
-                                System.out.println("INPUT READY");
-                            	while (check) {
-                            	   try{
-                                       ObjectInputStream ois = new ObjectInputStream(toClient.getInputStream());
-                            		   System.out.println("ready");
-                            	       System.out.println(ois.readObject());
-                            	   } catch(EOFException ex){
-                            		   System.out.println("eof");
-                            	       check=false;
-                            	   }
-                            	}
-                        	}
-                            //if equal lengths, and not 0
-                            else if(Integer.parseInt(tokens[2]) == blockchain.getLength()){
-                            	
-                        	}
-                            //theirs is longer, and both are not 0
-                            else{
-                            	clientWriter.print("cu|"+Base64.getEncoder().encode(blockchain.getHead().getCurrentHash()));
-                            	clientWriter.flush();
-                        	}
-                         toClient.close();   
+                    		System.out.println("Client Conencting to IP: "+remoteIP+" PORT: "+tokens[1]);
+                        	Thread readBlock = new Thread(new readBlockRun(remoteIP,Integer.parseInt(tokens[1]),blockchain,Integer.parseInt(tokens[2])));
+                            readBlock.start();
                         }       	
                         
                     	break;
                     case "cu":
-                    	System.out.println("cu");
                     	//establish socket from Q to P, buffer reader & object output
-                    	Socket toServer = new Socket();
-                    	toServer.connect(new InetSocketAddress(remoteIP, clientSocket.getLocalPort()), 2000);
-                        BufferedReader clientReader = new BufferedReader(new InputStreamReader(toServer.getInputStream()));
-                        ObjectOutputStream oos = new ObjectOutputStream(new BufferedOutputStream(toServer.getOutputStream()));
-                        System.out.println("OUT READY");
-                    	//send head
-                        if(tokens.length==1){
-                        	if(blockchain.getLength()>0){
-                        		oos.writeObject(blockchain.getHead());
-                        		oos.flush();
-                        		System.out.println("WRITTEN");
-                        	}
-                        }
-                        //more work
-                        else{
+                		//toServer.connect(new InetSocketAddress(remoteIP, clientSocket.getLocalPort()), 2000);
+                		System.out.println("SERVER Conencting to IP: "+remoteIP+" PORT: "+clientSocket.getLocalPort());
+                     	
 
-                        }
-                        break;
+
+                	        
+                    	break;
                     case "cc":
                         return;
                     default:

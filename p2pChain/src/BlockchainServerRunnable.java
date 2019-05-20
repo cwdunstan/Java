@@ -36,11 +36,12 @@ public class BlockchainServerRunnable implements Runnable{
 		}
     }
  
-    public void serverHandler(InputStream clientInputStream, OutputStream clientOutputStream) throws InterruptedException, ClassNotFoundException {
+    public void serverHandler(InputStream clientInputStream, OutputStream clientOutputStream) throws InterruptedException, ClassNotFoundException, IOException {
  
         BufferedReader inputReader = new BufferedReader(
                 new InputStreamReader(clientInputStream));
         PrintWriter outWriter = new PrintWriter(clientOutputStream, true);
+        ObjectOutputStream oos = null;
 
         
         String localIP = (((InetSocketAddress) clientSocket.getLocalSocketAddress()).getAddress()).toString().replace("/", "");
@@ -108,28 +109,23 @@ public class BlockchainServerRunnable implements Runnable{
                   		serverStatus.put(temp, new Date());        				
                         break;
                     
-                        
-                        
+                              
                     //LAST BLOCK
                     case "lb":
                         //if my length is less than theirs
                         if(Integer.parseInt(tokens[2])> blockchain.getLength()){
-                    		//create a socket
-                    		System.out.println("Client Conencting to IP: "+remoteIP+" PORT: "+tokens[1]);
+                    		//need to catch up, create a socket and send cu
                         	Thread readBlock = new Thread(new readBlockRun(remoteIP,Integer.parseInt(tokens[1]),blockchain,Integer.parseInt(tokens[2])));
                             readBlock.start();
                         }       	
-                        
                     	break;
                     case "cu":
-                    	//establish socket from Q to P, buffer reader & object output
-                		//toServer.connect(new InetSocketAddress(remoteIP, clientSocket.getLocalPort()), 2000);
-                		System.out.println("SERVER Conencting to IP: "+remoteIP+" PORT: "+clientSocket.getLocalPort());
-                     	
-
-
-                	        
+                    	oos=new ObjectOutputStream(clientOutputStream);
+                        oos.flush();
+                    	oos.writeObject(blockchain.getHead());
+                     	oos.flush();
                     	break;
+                	        
                     case "cc":
                         return;
                     default:

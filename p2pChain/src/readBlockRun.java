@@ -24,20 +24,31 @@ public class readBlockRun implements Runnable {
 	@Override
 	public void run() {
 		// TODO Auto-generated method stub
-		Socket toClient = new Socket();
-        System.out.println("lb:"+ip+" port: "+port);
+		Socket toServer = new Socket();
+        System.out.println("readblock started");
         try {
-			toClient.connect(new InetSocketAddress(ip, port), 2000);
-            BufferedReader clientReader = new BufferedReader(new InputStreamReader(toClient.getInputStream()));
-    	    PrintWriter ow = new PrintWriter(toClient.getOutputStream(), true);
+			toServer.connect(new InetSocketAddress(ip, port), 2000);
+    	    PrintWriter ow = new PrintWriter(toServer.getOutputStream(), true);
     	    System.out.println("Im sending a CU");
-    	    ow.print("cu");
+    	    ow.print("cu\n");
             ow.flush();
-            ow.close();
-            toClient.close();
+    	    ObjectInputStream ois = new ObjectInputStream(toServer.getInputStream());
+    	    Block temp = null;
+    	    while(temp==null) {
+    	    	temp = (Block) ois.readObject();
+    	    }
+    	    System.out.println(temp.toString());
+    	    
+//            ObjectInputStream ois = new ObjectInputStream(toClient.getInputStream());
+//            Block temp = (Block) ois.readObject();
+//            System.out.println(temp.getCurrentHash());
+//            ow.close();
 
 	        	        
 		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (ClassNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}

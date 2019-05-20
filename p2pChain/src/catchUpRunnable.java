@@ -30,8 +30,7 @@ public class catchUpRunnable implements Runnable {
             
             //buffed reader / object output -> read in "CU", 
             ObjectOutputStream oos = new ObjectOutputStream(toServer.getOutputStream());
-            BufferedReader inputReader = new BufferedReader(
-                    new InputStreamReader(toServer.getInputStream()));
+            BufferedReader inputReader = new BufferedReader( new InputStreamReader(toServer.getInputStream()));
             
             
             

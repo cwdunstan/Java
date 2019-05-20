@@ -8,9 +8,8 @@ import java.net.InetSocketAddress;
 import java.net.Socket;
 
 public class sendBlockRun implements Runnable {
-	
-	private int port;
 	private String ip;
+	private int port;
 	private Blockchain chain;
 	private String[] tokens;
 	
@@ -24,18 +23,21 @@ public class sendBlockRun implements Runnable {
 	@Override
 	public void run() {
 		// TODO Auto-generated method stub
-		Socket toServer = new Socket();
+		
 		try {
-			toServer.connect(new InetSocketAddress(ip, port), 2000);
-		    ObjectOutputStream oos = new ObjectOutputStream(toServer.getOutputStream());
-	 	   	oos.flush();
-		    BufferedReader clientReader = new BufferedReader(new InputStreamReader(toServer.getInputStream()));
-            String inputLine = clientReader.readLine();
-
-            System.out.println(inputLine);
-
+			Socket toClient = new Socket();
+			toClient.connect(new InetSocketAddress(ip, port), 2000);
+	        BufferedReader clientReader = new BufferedReader(
+	                new InputStreamReader(toClient.getInputStream()));
+    	    PrintWriter ow = new PrintWriter(toClient.getOutputStream(), true);
+    	    
+		    String inputLine=null;
+            while((inputLine = clientReader.readLine())!=null) {
+            if(inputLine.matches("cu")) {
+            	System.out.println("server got cu");
+            }
+            }
 		    clientReader.close();
-		    toServer.close();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

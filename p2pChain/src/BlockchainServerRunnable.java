@@ -43,7 +43,6 @@ public class BlockchainServerRunnable implements Runnable{
         PrintWriter outWriter = new PrintWriter(clientOutputStream, true);
         ObjectOutputStream oos = null;
 
-        
         String localIP = (((InetSocketAddress) clientSocket.getLocalSocketAddress()).getAddress()).toString().replace("/", "");
         String remoteIP = (((InetSocketAddress) clientSocket.getRemoteSocketAddress()).getAddress()).toString().replace("/", "");
  
@@ -53,7 +52,6 @@ public class BlockchainServerRunnable implements Runnable{
                 if (inputLine == null) {
                     break;
                 }
-                System.out.println(inputLine);
 
                 String[] tokens = inputLine.split("\\|");
                 switch (tokens[0]) {
@@ -115,15 +113,51 @@ public class BlockchainServerRunnable implements Runnable{
                         //if my length is less than theirs
                         if(Integer.parseInt(tokens[2])> blockchain.getLength()){
                     		//need to catch up, create a socket and send cu
-                        	Thread readBlock = new Thread(new readBlockRun(remoteIP,Integer.parseInt(tokens[1]),blockchain,Integer.parseInt(tokens[2])));
+                        	Thread readBlock = new Thread(new readBlockRun(remoteIP,Integer.parseInt(tokens[1]),blockchain,Integer.parseInt(tokens[2]),tokens[3]));
                             readBlock.start();
-                        }       	
+                        }
+                        //if we are the same length, but different hashes
+                        else if(Integer.parseInt(tokens[2])== blockchain.getLength()){
+                        	if(compareHash(Base64.getEncoder().encodeToString(blockchain.getHead().calculateHash()),tokens[3])==1){
+                        		Thread readBlock = new Thread(new readBlockRun(remoteIP,Integer.parseInt(tokens[1]),blockchain,Integer.parseInt(tokens[2]),tokens[3]));
+                        		readBlock.start();
+                        	}
+                        }
+                        //to do
+                        
+                        
                     	break;
                     case "cu":
                     	oos=new ObjectOutputStream(clientOutputStream);
-                        oos.flush();
-                    	oos.writeObject(blockchain.getHead());
-                     	oos.flush();
+                		oos.flush();
+
+                        //received "cu" send head
+                    	if(tokens.length==1){
+                    		oos.writeObject(blockchain.getHead());
+                         	oos.flush();
+                    	}
+                    	//received a hash value 
+                    	else{
+                    		String lateHash = tokens[1];
+                    		Block tempBlock = blockchain.getHead();
+                    		boolean found = false;
+                    		while(tempBlock!=null){
+                    	    	String encodedhash = Base64.getEncoder().encodeToString(tempBlock.calculateHash());
+                    	    	if(encodedhash.equals(lateHash)){
+                    	    		oos.writeObject(tempBlock);
+                    	    		oos.flush();
+                    	    		found = true;
+                    	    	}else{
+                    	    		tempBlock=tempBlock.getPreviousBlock();
+                    	    	}                	    
+                    		}
+                    		if(found==false){
+                    			oos.writeObject(null);
+                	    		oos.flush();
+                    		}
+                    	}
+
+                    	
                     	break;
                 	        
                     case "cc":
@@ -176,24 +210,3 @@ public class BlockchainServerRunnable implements Runnable{
 }
 
 
-//Blockchain tempchain = new Blockchain();
-//Block temphead = new Block();                       
-//temphead = blockchain.getHead();
-//tempchain.setHead(temphead);
-//tempchain.setLength(tempchain.getLength()+1);
-////iterate through
-//Block t = blockchain.getHead();
-//Block g = tempchain.getHead();
-//
-//while(t.getPreviousBlock()!=null){
-//	if(Base64.getEncoder().encodeToString(t.getPreviousHash()).equals(tokens[1])){
-//		break;
-//	}else{
-//		Block f = new Block();
-//		f = t.getPreviousBlock();
-//		g.setPreviousBlock(f);
-//		g=g.getPreviousBlock();
-//		t=t.getPreviousBlock();
-//		tempchain.setLength(tempchain.getLength()+1);
-//	}
-//}

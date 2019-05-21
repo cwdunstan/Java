@@ -23,7 +23,11 @@ public class HeartBeatClientRunnable implements Runnable{
             Socket toServer = new Socket();
             toServer.connect(new InetSocketAddress(ip, port), 2000);
             PrintWriter printWriter = new PrintWriter(toServer.getOutputStream(), true);
-            
+            String[] tokens = message.split("\\|");
+            if(tokens[0].equals("hb") && tokens[2].equals("0")){
+            	printWriter.println("cu\n");
+            	printWriter.flush();
+            }
             // send the message forward
             printWriter.println(message);
             printWriter.flush();

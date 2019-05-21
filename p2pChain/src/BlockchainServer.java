@@ -10,7 +10,7 @@ import java.util.Map;
 
 public class BlockchainServer {
 
-    public static void main(String[] args) throws IOException{
+    public static void main(String[] args){
 
         if (args.length != 3) {
             return;

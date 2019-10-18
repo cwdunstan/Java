@@ -5,9 +5,16 @@ import java.io.IOException;
 import java.util.*;
 
 class parser {
+
+    static boolean error = false;
     public static void main(String args[]) throws IOException  {
         //open file
         if(args.length > 0){
+            if(args.length>1){
+                if(args[1].equals("error")){
+                    error = true;
+                }
+            }
             List<Character> al = new ArrayList();
             File f=new File(args[0]);
             FileReader fread = new FileReader(f);   
@@ -44,11 +51,176 @@ class parser {
             }
 
 
-            System.out.println(parse(al)); 
+            System.out.println(parse(al, error, true, null)); 
         }
     }
 
-    //Helper function to check for valid string, and replace with single token
+ 
+
+    public static String parse(List<Character> al, boolean errorT, boolean output, List<Character> stack){
+        //create map of value rule pairs
+        HashMap<Character, HashMap<String, String>> hmap = genMap();
+        //create stack representation
+        if(stack == null){
+        stack = new ArrayList();
+        stack.add('$');
+        stack.add('S');
+        }
+
+        al.add('$');
+        //loop time
+        int a = 0;
+        while(al.size()>0 && a<50){
+            char Ts = stack.get(stack.size()-1);
+            char Cs = al.get(0);
+            if(!isTerminal(Cs)){
+                return "ERROR_INVALID_SYMBOL";
+            }
+
+            if(Ts== Cs && Ts=='$'){
+                return "ACCEPTED";
+            } else if (isTerminal(Ts) || Ts == '$'){
+                if(Ts==Cs){
+                    stack.remove(stack.size()-1);
+                    al.remove(0);       
+                } else {
+                    if(!errorT){
+                        return "REJECTED";
+                    }else{
+                        System.out.println("\nError: got "+Cs+" but expected "+Ts);
+                        System.out.println("Options: 1=add, 2=delete, 3=quit.");
+                        System.out.print(predictAdd(al, stack)+"\n"+predictRemove(al)+"\nEnter choice: ");
+                        Scanner in = new Scanner(System.in);
+                        String s = in.nextLine();
+                        switch(s){
+                            case "1":
+                                System.out.print("Enter new symbol, or Q to quit: ");
+                                char tempC = in.next().charAt(0);
+                                if(isTerminal(tempC)){
+                                    al.add(0,tempC);
+                                    break;
+                                } else {
+                                    while(!isTerminal(tempC) && tempC!='Q'){
+                                    System.out.print("Invalid input, try again or type Q to quit: ");
+                                    tempC = in.next().charAt(0);
+                                    }
+                                    if(tempC=='Q'){
+                                        return "REJECTED";
+                                    }
+                                    al.add(0,tempC);
+                                    break;                                  
+                                }
+                            case "2":
+                                al.remove(0);
+                                break;
+                            case "3":
+                                return "REJECTED";
+                            default:
+                                return "REJECTED";
+                        }
+                    }
+                }
+            } else if(hmap.containsKey(Ts)){         
+                if(hmap.get(Ts).containsKey(String.valueOf(Cs))){
+                    String tempVal = hmap.get(Ts).get(String.valueOf(Cs));
+                    if(tempVal != null){
+                        stack.remove(stack.size()-1);
+                        for(int i=tempVal.length()-1;i >=0; i--){
+                            if(tempVal.charAt(i)!='@'){
+                                stack.add(tempVal.charAt(i));
+                            }
+                        }
+                    }
+                }
+                else {
+                return "REJECTED";
+            }
+            } 
+            String first = ""; 
+            for (Character ch : al) { 
+                if(ch=='!'){
+                    first+="do "; 
+                } else if (ch =='<'){
+                    first+="let ";  
+                } else if (ch=='?'){
+                    first+="else "; 
+                } else if (ch=='%'){
+                    first+="while "; 
+                } else {
+                    first+=ch;
+                }
+            }
+            String second = ""; 
+            for (Character ch : stack) { 
+                second+=ch;
+            }
+            if(output){
+                System.out.printf("%-30.30s  %-30.30s%n",first,second);   
+            }
+        
+            a++;
+        }
+        return "ACCEPTED";
+    }
+
+
+        //helper prediction function
+    public static String predictAdd(List<Character> al, List<Character> stack){
+        List<Character> toAdd = new ArrayList();
+        List<Character> terms = Arrays.asList(new Character[] {'<',
+            '!','%', '?', '@', ')', '(', '+', '-','=', '*', '>', ';', '0', '1', '2', '3', '4',
+            '5', '6', '7', '8', '9','x', 'y', 'z'});
+        for(Character term : terms){
+            List<Character> alcopy  = new ArrayList();
+            alcopy=cloneList(al);
+            alcopy.add(0,term);
+            if(parse(alcopy, false, false, stack).equals("ACCEPTED")){
+                toAdd.add(term);
+            }
+        }
+        if(toAdd.size()>0){
+            return("(Tip: adding "+toAdd+" will result in an accepted string.)");
+        }
+        return "(Tip: adding 1 character won't help. Maybe 2?)";
+    }
+
+    //helper prediction function
+    public static String predictRemove(List<Character> al){
+        List<Character> alcopy  = new ArrayList();
+        alcopy=cloneList(al);
+        for(int i = 0; i<al.size();i++){
+            alcopy.remove(0);
+            if(parse(alcopy, false, false, null).equals("ACCEPTED")){
+                return("(Tip: removing "+i+" elements will result in an accepted string.)");
+            }
+        }
+        return "(Tip: removing something won't help.)";
+    }
+
+    //helper function to check if all elements are in language
+    public static boolean isvalid(ArrayList al) {
+        HashSet<String> terminals = new HashSet<String>(Arrays.asList(new String[] {"let",
+                "do","while", "else", ")", "(", "+", "-","=", "*", ">", ";", "0", "1", "2", "3", "4",
+                "5", "6", "7", "8", "9","x", "y", "z", "$"}));
+        for(int i = 0; i<al.size();i++){
+            if(!terminals.contains(String.valueOf(al.get(i)))){
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public static boolean isTerminal(Character C) {
+        HashSet<Character> terminals = new HashSet<Character>(Arrays.asList(new Character[] {'<',
+                '!','%', '?', '@', ')', '(', '+', '-','=', '*', '>', ';', '0', '1', '2', '3', '4',
+                '5', '6', '7', '8', '9','x', 'y', 'z', '$'}));
+        if(!terminals.contains(C)){
+            return false;
+        }
+        return true;
+    }
+
+       //Helper function to check for valid string, and replace with single token
     public static void tryReplace(List<Character> al, String target, int start) {
         String tempCompare = "";
         for(int j = start; j<start+target.length(); j++){
@@ -71,82 +243,6 @@ class parser {
                 al.remove(start+1);
             }
         }
-    }
-
-    public static boolean parse(List<Character> al){
-        //create map of value rule pairs
-        HashMap<Character, HashMap<String, String>> hmap = genMap();
-        //create stack representation
-        List<Character> stack = new ArrayList();
-        stack.add('$');
-        stack.add('S');
-        al.add('$');
-        //loop time
-        int a = 0;
-        while(al.size()>0 && a<50){
-            char Ts = stack.get(stack.size()-1);
-            char Cs = al.get(0);
-
-            if(Ts== Cs && Ts=='$'){
-                return true;
-            } else if (isTerminal(Ts) || Ts == '$'){
-                if(Ts==Cs){
-                    stack.remove(stack.size()-1);
-                    al.remove(0);       
-                } else {
-                    return false;
-                }
-            } else if(hmap.containsKey(Ts)){         
-                if(hmap.get(Ts).containsKey(String.valueOf(Cs))){
-                    String tempVal = hmap.get(Ts).get(String.valueOf(Cs));
-                    if(tempVal != null){
-                        stack.remove(stack.size()-1);
-                        for(int i=tempVal.length()-1;i >=0; i--){
-                            if(tempVal.charAt(i)!='@'){
-                                stack.add(tempVal.charAt(i));
-                            }
-                        }
-                    }
-                }
-            } else {
-                return false;
-            }
-            String first = ""; 
-            for (Character ch : al) { 
-                if(ch=='!'){
-                    first+="do "; 
-                } else if (ch =='<'){
-                    first+="let ";  
-                } else if (ch=='?'){
-                    first+="else "; 
-                } else if (ch=='%'){
-                    first+="while "; 
-                } else {
-                    first+=ch;
-                }
-            }
-            String second = ""; 
-            for (Character ch : stack) { 
-                second+=ch;
-            }
-
-            System.out.printf("%-30.30s  %-30.30s%n",first,second);           
-            a++;
-        }
-        return true;
-    }
-
-    //helper function to check if all elements are in language
-    public static boolean isvalid(ArrayList al) {
-        HashSet<String> terminals = new HashSet<String>(Arrays.asList(new String[] {"let",
-                "do","while", "else", ")", "(", "+", "-","=", "*", ">", ";", "0", "1", "2", "3", "4",
-                "5", "6", "7", "8", "9","x", "y", "z", "$"}));
-        for(int i = 0; i<al.size();i++){
-            if(!terminals.contains(String.valueOf(al.get(i)))){
-                return false;
-            }
-        }
-        return true;
     }
 
     public static HashMap<Character, HashMap<String, String>> genMap(){
@@ -302,13 +398,10 @@ class parser {
 
     }
 
-    public static boolean isTerminal(Character C) {
-        HashSet<Character> terminals = new HashSet<Character>(Arrays.asList(new Character[] {'<',
-                '!','%', '?', '@', ')', '(', '+', '-','=', '*', '>', ';', '0', '1', '2', '3', '4',
-                '5', '6', '7', '8', '9','x', 'y', 'z', '$'}));
-        if(!terminals.contains(C)){
-            return false;
-        }
-        return true;
+    public static List<Character> cloneList(List<Character> list) {
+        List<Character> clone = new ArrayList<Character>(list.size());
+        for (Character item : list) clone.add(item);
+        return clone;
     }
+
 }

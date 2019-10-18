@@ -1,1 +1,1 @@
-let x=(y-20); while 1 do y;;
+while 1 do xx;;
